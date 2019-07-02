@@ -31,8 +31,8 @@
       <!-- mouldList -->
       <div style="height:calc(100% - 50px);overflow-y: auto;">
         <div v-if="projectList.length" class="q-pa-sm" style="max-width: 100%;width:100%;">
-          <div class="text-h6 q-mb-md">项目列表</div>
-          <q-list bordered class="rounded-borders">
+          <!--<div class="text-h6 q-mb-md">项目列表</div>-->
+          <q-list class="rounded-borders">
             <div class="col" v-for="(items,index) in projectList" :key="index">
               <q-expansion-item
                 expand-separator

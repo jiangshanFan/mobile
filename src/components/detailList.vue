@@ -14,7 +14,7 @@
       </q-header>
       <q-scroll-area class="h100 w100">
         <q-page class="q-pa-sm">
-          <q-list dense bordered class="rounded-borders">
+          <q-list dense class="rounded-borders">
             <div class="col" v-for="(items,index) in detailListInfo" :key="index">
               <q-expansion-item
                 expand-separator

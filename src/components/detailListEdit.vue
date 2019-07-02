@@ -40,7 +40,15 @@
                     <q-item-section>
                       <q-item-label caption lines="2">
                         <template v-slot>
-                          <q-select outlined dense options-dense v-model="item.tcConfirm" :options="options" emit-value map-options :disable="$store.getters.userLoginVO.role !== 2">
+                          <q-select
+                            outlined
+                            dense
+                            options-dense
+                            v-model="item.tcConfirm"
+                            :options="options"
+                            emit-value
+                            map-options
+                            :disable="$store.getters.userLoginVO.role !== 2">
                             <template v-slot:before>
                               <span class="f12">YFPO  TC 确认</span>
                             </template>
