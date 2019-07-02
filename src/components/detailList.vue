@@ -1,5 +1,5 @@
 <template>
-  <div class="detailList_edit h100">
+  <div class="detailList h100">
     <div class="h100 w100" v-if="show">
       <q-header elevated>
         <q-toolbar class="bg-primary text-white">
@@ -99,9 +99,7 @@
       </q-scroll-area>
     </div>
     <!--  edit -->
-    <div v-else>
-      <AddOrEdit @showDefault="showDefault" :largeClass="largeClass" :tabs="tabs"></AddOrEdit>
-    </div>
+    <AddOrEdit v-else @showDefault="showDefault" :largeClass="largeClass" :tabs="tabs"></AddOrEdit>
   </div>
 </template>
 

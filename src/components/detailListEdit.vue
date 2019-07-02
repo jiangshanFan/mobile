@@ -1,24 +1,90 @@
 <template>
-  <div class="detailListEdit_Edit">
-    <q-header elevated>
-      <q-toolbar class="bg-primary text-white">
-        <q-btn round dense>
-          <q-icon name="fas fa-angle-left" @click.native="showDefault('edit')" />
-        </q-btn>
-        <q-toolbar-title>
-          {{largeClass}}
-        </q-toolbar-title>
-        <q-btn class="bg-white text-black" dense label="保存" />
-      </q-toolbar>
-    </q-header>
+  <div class="detailListEdit h100">
+    <q-layout view="lHh Lpr lFf" container class="h100 shadow-2 rounded-borders">
+      <q-header reveal elevated>
+        <q-toolbar class="bg-primary text-white">
+          <q-btn round dense>
+            <q-icon name="fas fa-angle-left" @click.native="showDefault('edit')" />
+          </q-btn>
+          <q-toolbar-title>
+            {{largeClass}}
+          </q-toolbar-title>
+          <q-btn class="bg-white text-black" dense label="保存" @click="saveInfo($store.getters.userLoginVO.role)" />
+        </q-toolbar>
+      </q-header>
 
-    <q-tabs v-model="activeName" inline-label dense class="bg-grey-3"
-            active-color="primary"
-            indicator-color="primary"
-            align="justify"
-            narrow-indicator>
-      <q-tab v-for="item in tabs" :key="item.name" :label="item.label" :name="item.name" />
-    </q-tabs>
+      <q-page-container>
+        <q-page padding style="padding-top: 36px">
+          <q-list>
+            <div v-for="(item,index) in allInfo.checkList" :key="index">
+              <q-item>
+                <q-item-section>
+                  <q-item-label lines="1">{{item.serialNo}} <q-btn class="underline" flat color="primary" label="详情" dense size="xs"/></q-item-label>
+                  <q-item-label caption v-html="item.checkContent"></q-item-label>
+                  <div><q-separator spaced inset /></div>
+
+                  <q-item>
+                    <q-item-section>
+                      <q-item-label caption lines="2">
+                        <template v-slot>
+                          <q-select outlined dense options-dense v-model="item.makeConfirm" :options="options" emit-value map-options :disable="$store.getters.userLoginVO.role !== 1">
+                            <template v-slot:before>
+                              <span class="f12">制造商确认</span>
+                            </template>
+                          </q-select>
+                        </template>
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item v-if="largeClass !== 'T1认可前检查'">
+                    <q-item-section>
+                      <q-item-label caption lines="2">
+                        <template v-slot>
+                          <q-select outlined dense options-dense v-model="item.tcConfirm" :options="options" emit-value map-options :disable="$store.getters.userLoginVO.role !== 2">
+                            <template v-slot:before>
+                              <span class="f12">YFPO  TC 确认</span>
+                            </template>
+                          </q-select>
+                        </template>
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item>
+                    <q-item-section>
+                      <q-item-label caption lines="2">
+                        <template v-slot>
+                          <q-select outlined dense options-dense v-model="item.factoryConfirm" :options="options" emit-value map-options :disable="$store.getters.userLoginVO.role !== 2">
+                            <template v-slot:before>
+                              <span class="f12">YFPO  工厂确认</span>
+                            </template>
+                          </q-select>
+                        </template>
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+
+                </q-item-section>
+              </q-item>
+              <q-separator spaced inset />
+            </div>
+          </q-list>
+
+            <!-- place QPageSticky at end of page -->
+          <q-page-sticky expand position="top">
+            <div class="w100">
+              <q-tabs v-model="activeName" inline-label dense class="bg-grey-3"
+                      active-color="primary"
+                      indicator-color="primary"
+                      align="justify"
+                      narrow-indicator
+                      @click="getList">
+                <q-tab v-for="item in tabs" :key="item.name" :label="item.label" :name="item.name" />
+              </q-tabs>
+            </div>
+          </q-page-sticky>
+        </q-page>
+      </q-page-container>
+    </q-layout>
   </div>
 </template>
 
@@ -60,7 +126,7 @@
     methods: {
       // get dataList of table
       async getList() {
-
+        // console.log(this.activeName)
         let params = {
           mouldNo: this.$store.getters.mould_list.mouldNo,
           smallClass: this.activeName,
@@ -89,7 +155,7 @@
 
         // console.log(inputs);
 
-        for (let i = 0; i < inputs.length / 3; i++) {  // inputs divide 3, because of the attribute of "fixed"(is-hidden), create three different part & same content
+        for (let i = 0; i < inputs.length; i++) {  // inputs divide 3, because of the attribute of "fixed"(is-hidden), create three different part & same content
           inputs[i].disabled = this.$store.getters.userLoginVO.role !== 1;
           if (!inputs[i].disabled) {
             inputs[i].maxLength = 10;
@@ -101,7 +167,7 @@
           arr[n].push(inputs[i].value);
         }
         if (val) {
-          let c = [...this.table.content];
+          let c = [...this.allInfo.checkList];
           c.forEach((item, index) => {
             if (arr[index]) {
               if (arr[index][0]) {
@@ -113,8 +179,6 @@
             }
 
           });
-          // console.log(this.table.content);
-          this.allInfo.remark = this.remark;
           let res;
           if (val === 1) {
             res = await updateApproveInfoByInnerUser(this.allInfo);
@@ -122,7 +186,14 @@
             res = await updateApproveInfoByCustomer(this.allInfo);
           }
           if (res.status === 1) {
-            // Message({showClose: true, type: 'success', message: '保存成功！'});
+            this.$q.notify({
+              position: 'top',
+              timeout: 1000,
+              textColor: 'white',
+              actions: [{ icon: 'close', color: 'white' }],
+              color: 'green-5',
+              message: '保存成功！'
+            });
             this.getList();
           }
         }
@@ -143,6 +214,13 @@
         activeName: '',
 
         remark: '',
+
+        //  confirm buttons
+        options: [
+          {value: 0, label: 'Not OK'},
+          {value: 1, label: 'OK'},
+          {value: 2, label: 'OK with reserves'},
+        ],
       }
     },
   }
