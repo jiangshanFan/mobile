@@ -18,6 +18,7 @@
             <div class="col" v-for="(items,index) in detailListInfo" :key="index">
               <q-expansion-item
                 expand-separator
+                expand-icon="keyboard_arrow_down"
                 :label="items.largeClass"
               >
                 <q-card>
@@ -127,7 +128,11 @@ export default {
       let res = await getToolInformationByMouldNo({mouldNo:this.$store.getters.mould_list.mouldNo});
       if (res.status === 1) {
         this.toolInfo = JSON.parse(JSON.stringify(res.msg));
-        this.toolInfo.largeClass = 'TOOL INFORMATION';
+        if (this.toolInfo) {
+          this.toolInfo.largeClass = 'TOOL INFORMATION';
+        } else {
+          this.toolInfo = {largeClass: 'TOOL INFORMATION'};
+        }
       }
     },
 
