@@ -15,7 +15,7 @@ module.exports = function (ctx) {
     ],
 
     extras: [
-      // 'ionicons-v4',
+      'ionicons-v4',
       // 'mdi-v3',
       'fontawesome-v5',
       // 'eva-icons',
@@ -47,17 +47,39 @@ module.exports = function (ctx) {
         'QItemSection',
         'QItemLabel',
         'QPageSticky',
-        'QInput'
+        'QInput',
+        'QForm',
+        'QToggle',
+        'QField',
+        'QSpace',
+        'QMenu',
+        'QSeparator',
+        'QExpansionItem',
+        'QCard',
+        'QCardSection',
+        'QCardActions',
+        'QAvatar',
+        'QScrollArea',
+        'QDialog',
+        'QImg',
+        'QTabs',
+        'QTab',
+        'QRouteTab'
       ],
 
       directives: [
-        'Ripple'
+        'Ripple',
+        'ClosePopup'
       ],
 
       // Quasar plugins
       plugins: [
         'Notify'
       ],
+
+      config: {
+        notify: { /* Notify defaults */ }
+      }
     },
 
     // framework: 'all',
@@ -71,6 +93,9 @@ module.exports = function (ctx) {
       // gzip: true,
       // analyze: true,
       // extractCSS: false,
+      scssLoaderOptions: {
+
+      },
       extendWebpack (cfg) {
         cfg.module.rules.push({
           enforce: 'pre',

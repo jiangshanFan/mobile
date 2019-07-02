@@ -1,20 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn flat dense round aria-label="Back">
-          <q-icon name="fas fa-angle-left" />
-        </q-btn>
-
-        <q-toolbar-title>
-          yfpo
-        </q-toolbar-title>
-
-        <!--<div>Quasar v{{ $q.version }}</div>-->
-      </q-toolbar>
-    </q-header>
-
-    <q-page-container>
+    <q-page-container style="height: 100%;">
       <router-view />
     </q-page-container>
   </q-layout>
@@ -22,7 +8,7 @@
 
 <script>
 /* eslint-disable */
-import { openURL } from 'quasar'
+import { openURL, } from 'quasar'
 
 export default {
   name: 'MyLayout',
@@ -32,7 +18,7 @@ export default {
     }
   },
   methods: {
-    openURL
+    openURL,
   },
   created() {
 

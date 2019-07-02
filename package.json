@@ -2,7 +2,7 @@
   "name": "yfpo_mobile",
   "version": "0.0.1",
   "description": "A Quasar Framework app",
-  "productName": "Quasar App",
+  "productName": "yfpo App",
   "cordovaId": "org.cordova.quasar.app",
   "author": "jiangshan.fan <745989449@qq.com>",
   "private": true,
@@ -25,7 +25,9 @@
     "babel-eslint": "^10.0.1",
     "eslint": "^5.10.0",
     "eslint-loader": "^2.1.1",
-    "eslint-plugin-vue": "^5.0.0"
+    "eslint-plugin-vue": "^5.0.0",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^7.1.0"
   },
   "engines": {
     "node": ">= 8.9.0",

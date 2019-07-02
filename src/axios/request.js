@@ -1,7 +1,15 @@
 /* eslint-disable */
 import axios from "axios";
 import Qs from "qs";  /** 需要进行引入才可以使用 */
-// import { Message } from 'element-ui';
+import { Notify } from 'quasar'
+
+Notify.setDefaults({
+  position: 'top',
+  timeout: 1000,
+  color: 'red-5',
+  textColor: 'white',
+  actions: [{ icon: 'close', color: 'white' }]
+});
 
 /****** 创建axios实例 ******/
 const $ajax = axios.create({
@@ -45,7 +53,7 @@ $ajax.interceptors.request.use(config => {
 
   return config;
 }, error => {  //请求错误处理
-  // Message({showClose: true, type: 'error', message: error});
+  Notify.create({message: error,});
   return Promise.reject(error);
 });
 
@@ -104,24 +112,16 @@ $ajax.interceptors.response.use(
       // return response.data;
     } else if(response.data.status === -1) {
       //返回 -1 清除token信息并跳转到登录页面
-      // localStorage.removeItem('token');
-      // localStorage.removeItem('username');
-      // localStorage.removeItem('isLogin');
-      // if(vm.$router.currentRoute.path !== '/login') {
-      //   vm.$router.push({
-      //     path: 'login',
-      //     query: {redirect: vm.$router.currentRoute.fullPath}
-      //   });
-      // }
       sessionStorage.clear();
-      window.location.reload();
+      window.location.reload();  // 添加动态路由时需要刷新清除原有的路由
       console.log('未登录');
       // Message({showClose: true, type: 'warning', message: response.data.msg});
+      Notify.create({message: response.data.msg,});
         // 返回错误信息 return response.data;
     } else if(response.data.status === 0){
-      // Message({showClose: true, type: 'warning', message: response.data.msg});
+      Notify.create({message: response.data.msg,});
     } else if(response.status !== 200){
-      // Message({showClose: true, type: 'warning', message: response.data.msg});
+      Notify.create({message: response.data.msg,});
     }
     return response.data
   },
@@ -138,7 +138,7 @@ $ajax.interceptors.response.use(
           // console.log('未登录');
       }
     }
-    // this.$message({showClose: true, type: 'warning', message: '网络错误！'});
+    // Notify.create({message: response.data.msg,});
     return Promise.reject(error)
   }
 );

@@ -3,9 +3,19 @@ const routes = [
   {
     path: '/',
     component: () => import('layouts/MyLayout.vue'),
+    redirect: 'mould',
+    meta: {
+      requiresAuth: true,
+      name: '模具管理系统'
+    },
     children: [
-      { path: '', component: () => import('pages/Index.vue') }
+      { name: 'mould', path: 'mould', component: () => import('pages/Index.vue') }
     ]
+  },
+  {
+    name: 'login',
+    path: '/login',
+    component: () => import('pages/login.vue')
   }
 ]
 
