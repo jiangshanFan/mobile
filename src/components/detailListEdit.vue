@@ -195,10 +195,6 @@
           }
           if (res.status === 1) {
             this.$q.notify({
-              position: 'top',
-              timeout: 1000,
-              textColor: 'white',
-              actions: [{ icon: 'close', color: 'white' }],
               color: 'green-5',
               message: '保存成功！'
             });
