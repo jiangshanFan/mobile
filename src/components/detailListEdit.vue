@@ -20,7 +20,7 @@
               <q-item>
                 <q-item-section>
                   <q-item-label lines="1">{{item.serialNo}} <q-btn class="underline" flat color="primary" label="详情" dense size="xs" @click="lookDetails(item)" /></q-item-label>
-                  <q-item-label caption v-html="item.checkContent"></q-item-label>
+                  <q-item-label caption v-html="item.checkContent" @click="lookDetails(item)"></q-item-label>
                   <div><q-separator spaced inset /></div>
 
                   <q-item>
