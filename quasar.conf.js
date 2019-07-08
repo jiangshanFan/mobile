@@ -97,6 +97,7 @@ module.exports = function (ctx) {
       // gzip: true,
       // analyze: true,
       // extractCSS: false,
+      distDir: 'dist',
       scssLoaderOptions: {
 
       },
@@ -123,7 +124,7 @@ module.exports = function (ctx) {
             '^/api': ''
           }
         }
-      }
+      },
     },
 
     // animations: 'all', // --- includes all animations
