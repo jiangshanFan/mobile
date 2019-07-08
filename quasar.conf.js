@@ -66,7 +66,9 @@ module.exports = function (ctx) {
         'QTab',
         'QRouteTab',
         'QRadio',
-        'QSelect'
+        'QSelect',
+        'QPageScroller',
+        'QUploader'
       ],
 
       directives: [

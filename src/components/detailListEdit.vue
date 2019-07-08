@@ -1,6 +1,6 @@
 <template>
   <div class="detailListEdit h100">
-    <q-layout view="lHh Lpr lFf" container class="h100 shadow-2 rounded-borders">
+    <q-layout v-if="show" view="lHh Lpr lFf" container class="h100 shadow-2 rounded-borders">
       <q-header reveal elevated>
         <q-toolbar class="bg-primary text-white">
           <q-btn round dense>
@@ -19,7 +19,7 @@
             <div v-for="(item,index) in allInfo.checkList" :key="index">
               <q-item>
                 <q-item-section>
-                  <q-item-label lines="1">{{item.serialNo}} <q-btn class="underline" flat color="primary" label="详情" dense size="xs"/></q-item-label>
+                  <q-item-label lines="1">{{item.serialNo}} <q-btn class="underline" flat color="primary" label="详情" dense size="xs" @click="lookDetails(item)" /></q-item-label>
                   <q-item-label caption v-html="item.checkContent"></q-item-label>
                   <div><q-separator spaced inset /></div>
 
@@ -93,6 +93,8 @@
         </q-page>
       </q-page-container>
     </q-layout>
+
+    <detail v-else @showDefault="showDefault"></detail>
   </div>
 </template>
 
@@ -100,11 +102,12 @@
 /* eslint-disable */
   /** 导入api.js */
   import { getApproveInfoByMouldNo, updateApproveInfoByInnerUser, updateApproveInfoByCustomer} from '../axios/api.js'
+  import detail from './detailListEdit_detail'
 
   export default {
     name: "detailListEdit",
     components: {
-
+      'detail': detail,
     },
     props: {
       tabs: {
@@ -204,7 +207,17 @@
       },
 
       showDefault(val) {
-        this.$emit('showDefault',val);
+        if (this.show) {
+          this.$emit('showDefault',val);
+        } else {
+          this.show = true;
+        }
+      },
+
+      // look detailList detail
+      lookDetails(item) {
+        this.show = false;
+        this.$store.dispatch('detail_list', item);
       },
     },
     data() {
@@ -225,6 +238,8 @@
           {value: 1, label: 'OK'},
           {value: 2, label: 'OK with reserves'},
         ],
+
+        show: true,
       }
     },
   }
