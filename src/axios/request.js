@@ -118,9 +118,7 @@ $ajax.interceptors.response.use(
       // Message({showClose: true, type: 'warning', message: response.data.msg});
       Notify.create({message: response.data.msg,});
         // 返回错误信息 return response.data;
-    } else if(response.data.status === 0){
-      Notify.create({message: response.data.msg,});
-    } else if(response.status !== 200){
+    } else {
       Notify.create({message: response.data.msg,});
     }
     return response.data

@@ -24,6 +24,7 @@
                   <span>新增描述:</span>
                   <q-input class="mb20" v-model="remark" filled autogrow />
                   <q-uploader
+                    ref="upload"
                     url="/api/upload/file/uploadManyFile"
                     label="上传"
                     auto-upload
@@ -146,13 +147,10 @@ export default {
       };
       let res = await addCheckDetail(params);
       if (res.status === 1) {
-        this.$q.notify({
-          color: 'green-5',
-          message: '添加描述成功！'
-        });
+        this.$q.notify({color: 'green-5', message: '添加描述成功！'});
         this.getList();
         this.remark = '';
-
+        this.$refs.upload.removeUploadedFiles();
       }
     },
 
