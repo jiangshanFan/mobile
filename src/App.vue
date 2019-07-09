@@ -8,6 +8,19 @@
 
 <script>
 /* eslint-disable */
+// let resizeTimer = null;
+// window.addEventListener('resize', function (){
+//   if (resizeTimer) clearTimeout(resizeTimer);
+//   resizeTimer = setTimeout(function(){
+//     if (window.innerWidth > 720) {
+//       window.location.href = 'http://10.9.1.77:65379'
+//     } else {
+//       window.location.href = 'http://10.9.1.77:65380'
+//     }
+//     setMainHeight();
+//   } , 100);
+// });
+
 export default {
   name: 'App',
   provide () {
