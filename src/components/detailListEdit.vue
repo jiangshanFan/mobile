@@ -168,6 +168,10 @@
 
         for (let i = 0; i < inputs.length; i++) {  // inputs divide 3, because of the attribute of "fixed"(is-hidden), create three different part & same content
           inputs[i].disabled = this.$store.getters.userLoginVO.role !== 1;
+          inputs[i].addEventListener('click',function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+          });
           if (!inputs[i].disabled) {
             inputs[i].maxLength = 10;
           }

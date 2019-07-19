@@ -101,6 +101,16 @@ export default {
     this.getList();
   },
 
+  mounted() {
+    setTimeout(function () {  // 设置定时器避免渲染时被 info.checkContent 重新定义为 false
+      let inputs = document.getElementsByClassName('param');
+      // console.log(inputs)
+      for (let i = 0; i < inputs.length; i++) {
+        inputs[i].disabled = true;
+      }
+    },200)
+  },
+
   methods: {
     // get dataList of table
     async getList() {
@@ -150,6 +160,7 @@ export default {
         this.$q.notify({color: 'green-5', message: '添加描述成功！'});
         this.getList();
         this.remark = '';
+        this.imgUrl = '';
         this.$refs.upload.removeUploadedFiles();
       }
     },
