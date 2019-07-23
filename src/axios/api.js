@@ -37,3 +37,9 @@ export const updateApproveInfoByInnerUser = data => {return $ajax({url: '/api/pr
 export const getCheckDetailList = data => {return $ajax({url: '/api/project/getCheckDetailList', method: 'get', params: data,})};
 //添加单个项的详情
 export const addCheckDetail = data => {return $ajax({url: '/api/project/addCheckDetail', method: 'post', data: data, meta: 1, })};
+//根据模号，获取设计评审清单列表
+export const getDesignStatistics = data => {return $ajax({url: '/api/project/getDesignStatistics', method: 'get', params: data,})};
+//根据模号，以及设计类型获取设计评审清单详情
+export const getDesignInfoByMouldNo = data => {return $ajax({url: '/api/project/getDesignInfoByMouldNo', method: 'get', params: data,})};
+//更新设计评审清单结果
+export const updateDesignInfo = data => {return $ajax({url: '/api/project/updateDesignInfo', method: 'post', data: data, meta: 1, })};

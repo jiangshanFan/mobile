@@ -1,6 +1,6 @@
 <template>
   <div class="detailList h100">
-    <div class="h100 w100" v-if="show">
+    <div class="h100 w100" v-if="show===0">
       <q-header elevated>
         <q-toolbar class="bg-primary text-white">
           <q-btn round dense>
@@ -25,7 +25,7 @@
                   <q-card-section>
                     <q-list dense class="smallList" @click="edits(items,index)">
                       <!-- TOOL INFORMATION -->
-                      <div class="row justify-start" v-if="items.largeClass === 'TOOL INFORMATION'">
+                      <div class="row justify-start" v-if="items.largeClass === '模具基本信息'">
                         <div class="col-8 offset-2">
                           <img src="../assets/tool_information.png" alt="tool information" />
                         </div>
@@ -46,6 +46,44 @@
                           <p>一级顶行程 <b class="border_solid_bottom_c pl5 pr5">{{items.firstTopTrip}}</b> kg</p>
                           <p>二级顶行程 <b class="border_solid_bottom_c pl5 pr5">{{items.secondTopTrip}}</b> kg</p>
                           <p>三级顶行程 <b class="border_solid_bottom_c pl5 pr5">{{items.thirdTopTrip}}</b> kg</p>
+                        </div>
+                      </div>
+                      <!-- DESIGN LIST -->
+                      <div v-else-if="items.type">
+                        <div class="col mb20" v-for="(item,index) in items.list" :key="index" @click="editsDesign(item, index)">
+                          <div>
+                            <q-item clickable v-ripple>
+                              <q-item-section>
+                                <div class="row">
+                                  <div class="col-8">
+                                    <q-item-label caption lines="1">
+                                      <q-toolbar>
+                                        <span>N/A</span>
+                                        <span class="text-black ml20">{{item.unConfirm}}</span>
+                                      </q-toolbar>
+                                      <q-toolbar>
+                                        <span>G</span>
+                                        <span class="text-black ml20">{{item.g}}</span>
+                                      </q-toolbar>
+                                    </q-item-label>
+                                  </div>
+
+                                  <div class="col-4">
+                                    <q-item-label caption lines="1">
+                                      <q-toolbar>
+                                        <span>Y</span>
+                                        <span class="text-black ml20">{{item.y}}</span>
+                                      </q-toolbar>
+                                      <q-toolbar>
+                                        <span>R</span>
+                                        <span class="text-black ml20">{{item.r}}</span>
+                                      </q-toolbar>
+                                    </q-item-label>
+                                  </div>
+                                </div>
+                              </q-item-section>
+                            </q-item>
+                          </div>
                         </div>
                       </div>
                       <!-- DETAIL LIST -->
@@ -100,22 +138,26 @@
       </q-scroll-area>
     </div>
     <!--  edit -->
-    <AddOrEdit v-else @showDefault="showDefault" :largeClass="largeClass" :tabs="tabs"></AddOrEdit>
+    <AddOrEdit v-else-if="show===1" @showDefault="showDefault" :largeClass="largeClass" :tabs="tabs"></AddOrEdit>
+    <designEdit v-else-if="show===2" @showDefault="showDefault" :largeClass="largeClass" :type="type"></designEdit>
   </div>
 </template>
 
 <script>
 /* eslint-disable */
-import { getToolInformationByMouldNo, getApproveStatistics } from '../axios/api'
+import { getToolInformationByMouldNo, getApproveStatistics, getDesignStatistics, } from '../axios/api'
 import detailListEdit from './detailListEdit'
+import designEdit from './designEdit'
 
 export default {
   name: "detailList",
   components: {
     'AddOrEdit': detailListEdit,
+    'designEdit': designEdit,
   },
 
   created() {
+    this.show = 0;
     this.detailList = this.$store.getters.mould_list;
     console.log(this.detailList);
     this.getTool();
@@ -129,9 +171,9 @@ export default {
       if (res.status === 1) {
         this.toolInfo = JSON.parse(JSON.stringify(res.msg));
         if (this.toolInfo) {
-          this.toolInfo.largeClass = 'TOOL INFORMATION';
+          this.toolInfo.largeClass = '模具基本信息';
         } else {
-          this.toolInfo = {largeClass: 'TOOL INFORMATION'};
+          this.toolInfo = {largeClass: '模具基本信息'};
         }
       }
     },
@@ -139,12 +181,17 @@ export default {
     // get detailListInfo
     async getDetailListInfo() {
       let res = await getApproveStatistics({mouldNo:this.$store.getters.mould_list.mouldNo});
-      if (res.status === 1) {
+      let res1 = await getDesignStatistics({mouldNo:this.$store.getters.mould_list.mouldNo});
+      if (res.status === 1 && res1.status === 1) {
         // change the structure of the Array
         let arr = [];
+        let arr1 = [];
         let init = JSON.parse(JSON.stringify(res.msg));
+        let init1 = JSON.parse(JSON.stringify(res1.msg));
         let c;
+        let c1;
         let single;
+        let single1;
         for (let index = 0; index >= 0; index++) {
           if (init.length) {
             arr[index] = {largeClass: '', list: [],};
@@ -160,8 +207,26 @@ export default {
                 // console.log(init.length)
               }
             }
-          } else {
-            this.detailListInfo = [this.toolInfo,...arr];
+          }
+          if (init1.length) {
+            arr1[index] = {largeClass: '', list: [],};
+            c1= init1[0].tableName;
+            // console.log(c);
+            for (let j = 0; j < init1.length; j++) {
+              if (init1[j].tableName === c1) {
+                single1 = JSON.parse(JSON.stringify(init1[j]));
+                arr1[index].list.push(single1);
+                arr1[index].largeClass = c1;
+                arr1[index].type = '评审清单';
+                init1.splice(j,1);
+                j = j - 1;
+                // console.log(init.length)
+              }
+            }
+          }
+          console.log(arr1)
+          if(!init.length && !init1.length) {
+            this.detailListInfo = [this.toolInfo,...arr1,...arr];
             break;
           }
         }
@@ -170,19 +235,27 @@ export default {
 
     // edit detailList_edit
     edits(item, index) {
-      if (item.largeClass !== 'TOOL INFORMATION') {
-        this.show = false;
-        this.tabs = this.allDetail[index];
-        this.largeClass = item.largeClass;
-        console.log(this.tabs);
+      if (item.largeClass !== '模具基本信息') {
+        if (index > 3) {
+          this.show = 1;
+          this.tabs = this.allDetail[index];
+          this.largeClass = item.largeClass;
+          console.log(this.tabs);
+        }
       }
     },
 
+    editsDesign(item, index) {
+      this.show = 2;
+      this.largeClass = item.tableName;
+      this.type = item.type;
+    },
+
     showDefault(val) {
-      if (this.show) {
+      if (this.show === 0) {
         this.$emit('showDefault',val);
       } else {
-        this.show = true;
+        this.show = 0;
       }
     },
   },
@@ -193,9 +266,12 @@ export default {
       toolInfo: {},  // toolInformation
       detailListInfo: [],
 
-      show: true,
+      show: 0,
       // 所有认可清单项
       allDetail: [
+        [],
+        [],
+        [],
         [],
         [
           { name: 'A', label: 'A 吊装存放安全确认'},
@@ -238,6 +314,7 @@ export default {
       ],
       tabs: [],
       largeClass: '',
+      type: 1,
     }
   },
 }

@@ -24,7 +24,7 @@
                   <span>新增描述:</span>
                   <q-input class="mb20" v-model="remark" filled autogrow />
                   <q-uploader
-                    ref="upload"
+                    ref="uploaded"
                     url="/api/upload/file/uploadManyFile"
                     label="上传"
                     auto-upload
@@ -37,7 +37,30 @@
                     field-name="file"
                     style="max-width: 100%;width: 100%;"
                     @uploaded="uploadImg"
-                  />
+                  >
+                    <template v-slot:list="scope">
+                      <q-list separator>
+
+                        <q-item v-for="file in scope.files" :key="file.name">
+                          <q-item-section>
+                            <q-item-label class="full-width ellipsis">{{ file.name }}</q-item-label>
+
+                            <q-item-label caption>{{ file.__sizeLabel }} / {{ file.__progressLabel }}</q-item-label>
+                          </q-item-section>
+
+                          <q-item-section v-if="file.__img" thumbnail><img :src="file.__img.src" /></q-item-section>
+
+                          <q-item-section side>
+                            <q-btn size="12px" flat dense @click="deleteImg(file,'uploaded', 1)">
+                              <q-icon name="fas fa-trash" />
+                            </q-btn>
+                          </q-item-section>
+                        </q-item>
+
+                      </q-list>
+                    </template>
+                  </q-uploader>
+
                   <q-btn class="mt20" label="提交" size="sm" @click="saveInfos" />
                 </div>
               </div>
@@ -129,10 +152,10 @@ export default {
           this.list.forEach(item => {
             let imgeUrl = item.imageUrl;
             if(imgeUrl !== undefined && imgeUrl !== null) {
-              if(imgeUrl.length > 1 && imgeUrl.charAt(imgeUrl.length - 1) === '|') { /** 需要先判断imgeUrl ！== null，才能获取length */
-                item.imageUrl = imgeUrl.substr(0,imgeUrl.length - 1).split('|');
-              }else {
+              if(imgeUrl.length > 1) { /** 需要先判断imgeUrl ！== null，才能获取length */
                 item.imageUrl = imgeUrl.split('|');
+              }else {
+                item.imageUrl = imgeUrl.split('');
               }
             }
           });
@@ -145,12 +168,26 @@ export default {
       let res = JSON.parse(info.xhr.response);
       let img = res.msg[0].url;
       this.imgUrl += img + '|';
+      this.uploaded.push(img);
+    },
+
+    // delete updated list of images
+    deleteImg(file, type, val = 0) {
+      if (val) {
+        let res = JSON.parse(file.xhr.response);
+        this.$refs[type].removeFile(file);
+        this[type].forEach((item,index) => {
+          if (item === res.msg[0].url) {
+            this[type].splice(index,1);
+          }
+        });
+      }
     },
 
     // save infos
     async saveInfos() {
       let params = {
-        imageUrl: this.imgUrl,
+        imageUrl: this.uploaded.join('|'),
         mouldNo: this.$store.getters.mould_list.mouldNo,
         smallClass: this.$store.getters.detail_list.serialNo,
         remark: this.remark,
@@ -161,7 +198,8 @@ export default {
         this.getList();
         this.remark = '';
         this.imgUrl = '';
-        this.$refs.upload.removeUploadedFiles();
+        this.uploaded = [];
+        this.$refs.uploaded.removeUploadedFiles();
       }
     },
 
@@ -183,6 +221,8 @@ export default {
 
       // new one detail
       nD: 0,
+
+      uploaded: [],
     }
   },
 }
