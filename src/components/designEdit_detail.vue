@@ -46,7 +46,7 @@
                   <q-uploader
                     ref="assessImageUploaded"
                     url="/api/upload/file/uploadManyFile"
-                    label="上传"
+                    label="评审标准图片上传"
                     auto-upload
                     multiple
                     :max-file-size="5242880"
@@ -108,7 +108,7 @@
                   <q-uploader
                     ref="presentSituationImageUploaded"
                     url="/api/upload/file/uploadManyFile"
-                    label="上传"
+                    label="模具现状图片上传"
                     auto-upload
                     multiple
                     :max-file-size="5242880"
@@ -170,7 +170,7 @@
                   <q-uploader
                     ref="improveImageUploaded"
                     url="/api/upload/file/uploadManyFile"
-                    label="上传"
+                    label="改善后图片上传"
                     auto-upload
                     multiple
                     :max-file-size="5242880"
