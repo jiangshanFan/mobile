@@ -69,7 +69,9 @@ module.exports = function (ctx) {
         'QSelect',
         'QPageScroller',
         'QUploader',
-        'QUploaderAddTrigger'
+        'QUploaderAddTrigger',
+        'QSpinner',
+        'QSpinnerBars'
       ],
 
       directives: [

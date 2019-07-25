@@ -14,61 +14,47 @@
       </q-header>
       <q-scroll-area class="h100 w100">
         <q-page class="q-pa-sm">
-          <q-list dense class="rounded-borders">
-            <div class="col" v-for="(item,index) in detailListInfo" :key="index">
-              <q-expansion-item
-                expand-separator
-                expand-icon="keyboard_arrow_down"
-                :label="item.name"
-              >
-                <q-card>
-                  <q-card-section>
-                    <q-list dense class="smallList">
-                      <q-item>
-                        <q-item-section>
-                          <q-item-label caption @click="lookDetails(item)">
-                            <span v-html="item.verification"></span>
-                            <q-btn class="underline" flat color="primary" label="详情" dense size="xs" />
-                          </q-item-label>
+          <q-list dense class="smallList">
+            <q-item v-for="(item,index) in detailListInfo" :key="index">
+              <q-item-section>
+                <q-item-label>{{item.name}}</q-item-label>
+                <q-item-label caption @click="lookDetails(item)">
+                  <span v-html="item.verification"></span>
+                  <q-btn class="underline" flat color="primary" label="详情" dense size="xs" />
+                </q-item-label>
 
-                          <div><q-separator spaced inset /></div>
+                <div><q-separator spaced inset /></div>
 
-                          <q-item>
-                            <q-item-section>
-                              <q-item-label caption lines="2">
-                                <template v-slot>
-                                  <q-select outlined dense options-dense v-model="item.status" :options="options" emit-value map-options :disable="$store.getters.userLoginVO.role !== 1">
-                                    <template v-slot:before>
-                                      <span class="f12">STATUS</span>
-                                    </template>
-                                  </q-select>
-                                </template>
-                              </q-item-label>
-                            </q-item-section>
-                          </q-item>
-                          <q-item>
-                            <q-item-section>
-                              <q-item-label caption lines="2">
-                                <template v-slot>
-                                  <q-input v-model="item.remarks" outlined type="textarea">
-                                    <template v-slot:before>
-                                      <span class="f12">REMARKS</span>
-                                    </template>
-                                  </q-input>
-                                </template>
-                              </q-item-label>
-                            </q-item-section>
-                          </q-item>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label caption lines="2">
+                      <template v-slot>
+                        <q-select outlined dense options-dense v-model="item.status" :options="options" emit-value map-options :disable="$store.getters.userLoginVO.role !== 1">
+                          <template v-slot:before>
+                            <span class="f12">STATUS</span>
+                          </template>
+                        </q-select>
+                      </template>
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label caption lines="2">
+                      <template v-slot>
+                        <q-input v-model="item.remarks" outlined type="textarea">
+                          <template v-slot:before>
+                            <span class="f12">REMARKS</span>
+                          </template>
+                        </q-input>
+                      </template>
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <div><q-separator spaced color="grey-8" /></div>
+              </q-item-section>
 
-                        </q-item-section>
-                      </q-item>
-                      <q-separator spaced inset />
-                    </q-list>
-                  </q-card-section>
-                </q-card>
-              </q-expansion-item>
-              <q-separator />
-            </div>
+            </q-item>
           </q-list>
         </q-page>
       </q-scroll-area>

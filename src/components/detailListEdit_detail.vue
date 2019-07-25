@@ -94,7 +94,13 @@
 
                     <q-card-section>
                       <div class="q-col-gutter-md row">
-                        <div class="col-6" v-for="(img,index) in item.imageUrl" :key="index"><img :src="img"></div>
+                        <div class="col-6" v-for="(img,index) in item.imageUrl" :key="index">
+                          <q-img
+                            :src="img"
+                            spinner-color="primary"
+                            spinner-size="50px"
+                          />
+                        </div>
                       </div>
                     </q-card-section>
                   </q-card>
@@ -104,8 +110,8 @@
             </q-list>
 
             <!-- place QPageScroller at end of page -->
-            <q-page-scroller position="bottom-right" :scroll-offset="150" :offset="[18, 18]">
-              <q-btn fab icon="keyboard_arrow_up" color="accent" />
+            <q-page-scroller position="bottom-right" :scroll-offset="150" :offset="[10, 10]">
+              <q-btn size="12px" icon="keyboard_arrow_up" color="accent" />
             </q-page-scroller>
           </q-page>
       </q-page-container>
@@ -186,20 +192,24 @@ export default {
 
     // save infos
     async saveInfos() {
-      let params = {
-        imageUrl: this.uploaded.join('|'),
-        mouldNo: this.$store.getters.mould_list.mouldNo,
-        smallClass: this.$store.getters.detail_list.serialNo,
-        remark: this.remark,
-      };
-      let res = await addCheckDetail(params);
-      if (res.status === 1) {
-        this.$q.notify({color: 'green-5', message: '添加描述成功！'});
-        this.getList();
-        this.remark = '';
-        this.imgUrl = '';
-        this.uploaded = [];
-        this.$refs.uploaded.removeUploadedFiles();
+      if (this.imageUrl || this.remark) {
+        let params = {
+          imageUrl: this.uploaded.join('|'),
+          mouldNo: this.$store.getters.mould_list.mouldNo,
+          smallClass: this.$store.getters.detail_list.serialNo,
+          remark: this.remark,
+        };
+        let res = await addCheckDetail(params);
+        if (res.status === 1) {
+          this.$q.notify({color: 'green-5', message: '添加描述成功！'});
+          this.getList();
+          this.remark = '';
+          this.imgUrl = '';
+          this.uploaded = [];
+          this.$refs.uploaded.removeUploadedFiles();
+        }
+      } else {
+        this.$q.notify({color: 'red-5', message: '请填写相关内容，谢谢！'});
       }
     },
 

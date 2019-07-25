@@ -33,7 +33,13 @@
                         <q-item-label caption>{{ file.__progressLabel }}</q-item-label>
                       </q-item-section>
 
-                      <q-item-section v-if="file.__img" thumbnail><img :src="file.__img.src" /></q-item-section>
+                      <q-item-section style="width: 100px;height:50px;" v-if="file.__img" thumbnail>
+                        <q-img
+                          :src="file.__img.src"
+                          spinner-color="primary"
+                          spinner-size="50px"
+                        />
+                      </q-item-section>
 
                       <q-item-section side>
                         <q-btn size="12px" flat dense @click="deleteImg(file,'assessImage')">
@@ -57,6 +63,8 @@
                     field-name="file"
                     style="max-width: 100%;width: 100%;"
                     @uploaded="uploadAssessImage"
+                    @start="startUpload(1)"
+                    @finish="finishUpload(1)"
                   >
                     <template v-slot:list="scope">
                       <q-list separator>
@@ -95,7 +103,13 @@
                         <q-item-label caption>{{ file.__progressLabel }}</q-item-label>
                       </q-item-section>
 
-                      <q-item-section v-if="file.__img" thumbnail><img :src="file.__img.src" /></q-item-section>
+                      <q-item-section style="width: 100px;height:50px;" v-if="file.__img" thumbnail>
+                        <q-img
+                          :src="file.__img.src"
+                          spinner-color="primary"
+                          spinner-size="50px"
+                        />
+                      </q-item-section>
 
                       <q-item-section side>
                         <q-btn size="12px" flat dense @click="deleteImg(file,'presentSituationImage')">
@@ -119,6 +133,8 @@
                     field-name="file"
                     style="max-width: 100%;width: 100%;"
                     @uploaded="uploadPresentSituationImage"
+                    @start="startUpload(2)"
+                    @finish="finishUpload(2)"
                   >
                     <template v-slot:list="scope">
                       <q-list separator>
@@ -157,7 +173,13 @@
                         <q-item-label caption>{{ file.__progressLabel }}</q-item-label>
                       </q-item-section>
 
-                      <q-item-section v-if="file.__img" thumbnail><img :src="file.__img.src" /></q-item-section>
+                      <q-item-section style="width: 100px;height:50px;" v-if="file.__img" thumbnail>
+                        <q-img
+                          :src="file.__img.src"
+                          spinner-color="primary"
+                          spinner-size="50px"
+                        />
+                      </q-item-section>
 
                       <q-item-section side>
                         <q-btn size="12px" flat dense @click="deleteImg(file,'improveImage')">
@@ -181,6 +203,8 @@
                     field-name="file"
                     style="max-width: 100%;width: 100%;"
                     @uploaded="uploadImproveImage"
+                    @start="startUpload(3)"
+                    @finish="finishUpload(3)"
                   >
                     <!--<template v-slot:header="scope">
                       <div class="row no-wrap items-center q-pa-sm q-gutter-xs">
@@ -245,6 +269,9 @@ export default {
   },
 
   mounted() {
+    this.assessWork = true;
+    this.presentSituationWork = true;
+    this.improveWork = true;
     this.allInfo = JSON.parse(JSON.stringify(this.$store.getters.design_list));
     this.StringToImg('assessImage');
     this.StringToImg('presentSituationImage');
@@ -307,6 +334,25 @@ export default {
     },
 
 
+    // start & finish upload working
+    startUpload(val) {
+      if (val === 1) {
+        this.assessWork = false;
+      } else if (val === 2) {
+        this.presentSituationWork = false;
+      } else {
+        this.improveWork = false;
+      }
+    },
+    finishUpload(val) {
+      if (val === 1) {
+        this.assessWork = true;
+      } else if (val === 2) {
+        this.presentSituationWork = true;
+      } else {
+        this.improveWork = true;
+      }
+    },
 
     // delete updated list of images
     deleteImg(file, type, val = 0) {
@@ -329,36 +375,40 @@ export default {
 
     // save info
     async saveInfo() {
-      let allInfo = {};
-      allInfo = { ...this.allInfo };
-      allInfo.assessImage = this.getSrcList(this.assessImage).concat(this.assessImageUploaded).join('|');
-      allInfo.presentSituationImage = this.getSrcList(this.presentSituationImage).concat(this.presentSituationImageUploaded).join('|');
-      allInfo.improveImage = this.getSrcList(this.improveImage).concat(this.improveImageUploaded).join('|');
+      if (this.improveWork && this.assessWork && this.presentSituationWork) {
+        let allInfo = {};
+        allInfo = { ...this.allInfo };
+        allInfo.assessImage = this.getSrcList(this.assessImage).concat(this.assessImageUploaded).join('|');
+        allInfo.presentSituationImage = this.getSrcList(this.presentSituationImage).concat(this.presentSituationImageUploaded).join('|');
+        allInfo.improveImage = this.getSrcList(this.improveImage).concat(this.improveImageUploaded).join('|');
 
-      let params = {
-        mouldNo: this.$store.getters.mould_list.mouldNo,
-        reviewList: [allInfo]
-      };
-      let res = await updateDesignInfo(params);
-      if (res.status === 1) {
-        // updated the info of designEdit_detail
-        this.allInfo = allInfo;
-        this.$q.notify({color: 'green-5', message: '添加描述成功！'});
+        let params = {
+          mouldNo: this.$store.getters.mould_list.mouldNo,
+          reviewList: [allInfo]
+        };
+        let res = await updateDesignInfo(params);
+        if (res.status === 1) {
+          // updated the info of designEdit_detail
+          this.allInfo = allInfo;
+          this.$q.notify({color: 'green-5', message: '添加描述成功！'});
 
-        // load the updated list of img again
-        this.StringToImg('assessImage');
-        this.StringToImg('presentSituationImage');
-        this.StringToImg('improveImage');
+          // load the updated list of img again
+          this.StringToImg('assessImage');
+          this.StringToImg('presentSituationImage');
+          this.StringToImg('improveImage');
 
-        // real clear the image of upload container
-        this.assessImageUploaded = [];
-        this.presentSituationImageUploaded = [];
-        this.improveImageUploaded = [];
+          // real clear the image of upload container
+          this.assessImageUploaded = [];
+          this.presentSituationImageUploaded = [];
+          this.improveImageUploaded = [];
 
-        // virtual clear
-        this.$refs.assessImageUploaded.removeUploadedFiles();
-        this.$refs.presentSituationImageUploaded.removeUploadedFiles();
-        this.$refs.improveImageUploaded.removeUploadedFiles();
+          // virtual clear
+          this.$refs.assessImageUploaded.removeUploadedFiles();
+          this.$refs.presentSituationImageUploaded.removeUploadedFiles();
+          this.$refs.improveImageUploaded.removeUploadedFiles();
+        }
+      } else {
+        this.$q.notify({color: 'red-5', message: '请耐心等待文件上传完成，谢谢！'});
       }
     },
 
@@ -387,6 +437,11 @@ export default {
       presentSituationImageUploaded: [], //上传成功后的图片
       improveImage: [], // 已经更新成功的照片
       improveImageUploaded: [], //上传成功后的图片
+
+      // upload work status
+      assessWork: true,
+      presentSituationWork: true,
+      improveWork: true,
     }
   },
 }

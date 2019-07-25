@@ -137,6 +137,8 @@
         </q-page>
       </q-scroll-area>
     </div>
+
+    <!--<q-spinner-bars class="spinnerShow" v-if="spinnerShow" color="primary" size="5em"/>-->
     <!--  edit -->
     <AddOrEdit v-else-if="show===1" @showDefault="showDefault" :largeClass="largeClass" :tabs="tabs"></AddOrEdit>
     <designEdit v-else-if="show===2" @showDefault="showDefault" :largeClass="largeClass" :type="type"></designEdit>
@@ -157,11 +159,16 @@ export default {
   },
 
   created() {
+    this.spinnerShow = true;
     this.show = 0;
     this.detailList = this.$store.getters.mould_list;
     console.log(this.detailList);
     this.getTool();
     this.getDetailListInfo();
+  },
+
+  mounted() {
+    this.spinnerShow = true;
   },
 
   methods: {
@@ -230,6 +237,8 @@ export default {
             break;
           }
         }
+
+        this.spinnerShow = false;
       }
     },
 
@@ -315,6 +324,9 @@ export default {
       tabs: [],
       largeClass: '',
       type: 1,
+
+      // show spinner
+      spinnerShow: true,
     }
   },
 }

@@ -9,10 +9,10 @@
               <!-- Menu -->
               <q-menu :content-style="{ fontSize: '0.5em' }" auto-close>
                 <q-list style="min-width: 100px">
-                  <q-item clickable v-close-popup>
+                  <!--<q-item clickable v-close-popup>
                     <q-item-section>修改密码</q-item-section>
                   </q-item>
-                  <q-separator />
+                  <q-separator />-->
                   <q-item clickable v-close-popup>
                     <q-item-section @click="clearStorage">退出</q-item-section>
                   </q-item>
