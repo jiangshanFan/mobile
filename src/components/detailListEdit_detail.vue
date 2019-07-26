@@ -192,7 +192,7 @@ export default {
 
     // save infos
     async saveInfos() {
-      if (this.imageUrl || this.remark) {
+      if (this.uploaded.length || this.remark) {
         let params = {
           imageUrl: this.uploaded.join('|'),
           mouldNo: this.$store.getters.mould_list.mouldNo,
@@ -209,7 +209,7 @@ export default {
           this.$refs.uploaded.removeUploadedFiles();
         }
       } else {
-        this.$q.notify({color: 'red-5', message: '请填写相关内容，谢谢！'});
+        this.$q.notify({color: 'red-5', message: '请填写相关内容并耐心等待图片上传完成，谢谢！'});
       }
     },
 
