@@ -9,7 +9,7 @@
           <q-toolbar-title class="f16">
             {{allInfo.name}}
           </q-toolbar-title>
-          <q-btn class="bg-white text-black" dense label="保存" @click="saveInfo" />
+          <q-btn class="bg-white text-black" dense label="保存" @click="saveInfo" :disable="!canUpdate" />
         </q-toolbar>
       </q-header>
       <q-page-container>
@@ -375,40 +375,72 @@ export default {
 
     // save info
     async saveInfo() {
-      if (this.improveWork && this.assessWork && this.presentSituationWork) {
-        let allInfo = {};
-        allInfo = { ...this.allInfo };
-        allInfo.assessImage = this.getSrcList(this.assessImage).concat(this.assessImageUploaded).join('|');
-        allInfo.presentSituationImage = this.getSrcList(this.presentSituationImage).concat(this.presentSituationImageUploaded).join('|');
-        allInfo.improveImage = this.getSrcList(this.improveImage).concat(this.improveImageUploaded).join('|');
+      let condition = false;
+      this.canUpdate = false;
+      setTimeout(() => {this.canUpdate = true;},1000);
+      if (
+        this.allInfo.assessDescribe ||
+        this.allInfo.presentSituationDescribe ||
+        this.allInfo.improveDescribe ||
+        this.allInfo.assessImage.length ||
+        this.allInfo.presentSituationImage.length ||
+        this.allInfo.improveImage.length
+      ) {
+        if (
+          this.allInfo.assessDescribe ||
+          this.allInfo.presentSituationDescribe ||
+          this.allInfo.improveDescribe
+        ) {
+          condition = true;
+        }
 
-        let params = {
-          mouldNo: this.$store.getters.mould_list.mouldNo,
-          reviewList: [allInfo]
-        };
-        let res = await updateDesignInfo(params);
-        if (res.status === 1) {
-          // updated the info of designEdit_detail
-          this.allInfo = allInfo;
-          this.$q.notify({color: 'green-5', message: '添加描述成功！'});
+        if (this.improveWork && this.assessWork && this.presentSituationWork) {
+          condition = true;
+        } else {
+          condition = false;
+          this.$q.notify({color: 'red-5', message: '请耐心等待文件上传完成，再点击保存！'});
+        }
 
-          // load the updated list of img again
-          this.StringToImg('assessImage');
-          this.StringToImg('presentSituationImage');
-          this.StringToImg('improveImage');
+        if (condition) {
+          let allInfo = {};
+          allInfo = { ...this.allInfo };
+          allInfo.assessImage = this.getSrcList(this.assessImage).concat(this.assessImageUploaded).join('|');
+          allInfo.presentSituationImage = this.getSrcList(this.presentSituationImage).concat(this.presentSituationImageUploaded).join('|');
+          allInfo.improveImage = this.getSrcList(this.improveImage).concat(this.improveImageUploaded).join('|');
 
-          // real clear the image of upload container
-          this.assessImageUploaded = [];
-          this.presentSituationImageUploaded = [];
-          this.improveImageUploaded = [];
+          let params = {
+            mouldNo: this.$store.getters.mould_list.mouldNo,
+            reviewList: [allInfo]
+          };
+          if (JSON.stringify(allInfo) !== JSON.stringify(this.$store.getters.design_list)) {
+            let res = await updateDesignInfo(params);
+            if (res.status === 1) {
+              // updated the info of designEdit_detail
+              this.allInfo = allInfo;
+              this.$q.notify({color: 'green-5', message: '更新信息成功！'});
+              this.$emit('showDefault','edit');
 
-          // virtual clear
-          this.$refs.assessImageUploaded.removeUploadedFiles();
-          this.$refs.presentSituationImageUploaded.removeUploadedFiles();
-          this.$refs.improveImageUploaded.removeUploadedFiles();
+              // load the updated list of img again
+              this.StringToImg('assessImage');
+              this.StringToImg('presentSituationImage');
+              this.StringToImg('improveImage');
+
+              // real clear the image of upload container
+              this.assessImageUploaded = [];
+              this.presentSituationImageUploaded = [];
+              this.improveImageUploaded = [];
+
+              // virtual clear
+              this.$refs.assessImageUploaded.removeUploadedFiles();
+              this.$refs.presentSituationImageUploaded.removeUploadedFiles();
+              this.$refs.improveImageUploaded.removeUploadedFiles();
+            }
+          } else {
+            this.$q.notify({color: 'red-5', message: '请更新相关内容，再点击提交！'});
+          }
         }
       } else {
-        this.$q.notify({color: 'red-5', message: '请耐心等待文件上传完成，谢谢！'});
+        this.$q.notify({color: 'red-5', message: '请至少填写一项相关内容，再点击提交！！'});
       }
     },
 
@@ -442,6 +474,8 @@ export default {
       assessWork: true,
       presentSituationWork: true,
       improveWork: true,
+
+      canUpdate: true,
     }
   },
 }

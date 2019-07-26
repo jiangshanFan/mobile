@@ -9,7 +9,7 @@
           <q-toolbar-title class="f16">
             {{largeClass}}
           </q-toolbar-title>
-          <q-btn class="bg-white text-black" dense label="保存" @click="saveInfo" />
+          <q-btn class="bg-white text-black" dense label="保存" @click="saveInfo" :disable="!canSave" />
         </q-toolbar>
       </q-header>
       <q-scroll-area class="h100 w100">
@@ -108,6 +108,7 @@
         let res = await getDesignInfoByMouldNo(params);
 
         if(res.status === 1) {
+          this.initInfo = JSON.parse(JSON.stringify(res.msg));
           this.allInfo = JSON.parse(JSON.stringify(res.msg));
           this.detailListInfo = this.allInfo.reviewList;
           // this.remark = this.allInfo.remark;
@@ -118,15 +119,20 @@
 
       // SAVE THE INFO OF DESIGN LIST INFO
       async saveInfo(val) {
-        let res = await updateDesignInfo(this.allInfo);
+        this.canSave = false;
+        setTimeout(() => {this.canSave = true;}, 1000);
+        if (JSON.stringify(this.allInfo) !== JSON.stringify(this.initInfo)) {
+          let res = await updateDesignInfo(this.allInfo);
 
-        if (res.status === 1) {
-          this.$q.notify({
-            color: 'green-5',
-            message: '保存成功！'
-          });
-          this.getList();
+          if (res.status === 1) {
+            this.$q.notify({color: 'green-5', message: '保存成功！'});
+            this.getList();
+            this.initInfo = JSON.parse(JSON.stringify(this.allInfo));
+          }
+        } else {
+          this.$q.notify({color: 'red-5', message: '请更新内容，再点击提交！'});
         }
+
       },
 
       showDefault(val) {
@@ -161,6 +167,8 @@
         ],
 
         show: true,
+        canSave: true,
+        initInfo: {},
       }
     },
   }

@@ -37,6 +37,8 @@
                     field-name="file"
                     style="max-width: 100%;width: 100%;"
                     @uploaded="uploadImg"
+                    @start="startUpload"
+                    @finish="finishUpload"
                   >
                     <template v-slot:list="scope">
                       <q-list separator>
@@ -61,7 +63,7 @@
                     </template>
                   </q-uploader>
 
-                  <q-btn class="mt20" label="提交" size="sm" @click="saveInfos" />
+                  <q-btn class="mt20" color="primary" label="提交" size="sm" @click="saveInfos" :disable="!canUpdate"/>
                 </div>
               </div>
 
@@ -131,6 +133,7 @@ export default {
   },
 
   mounted() {
+    this.ifUploaded = true;
     setTimeout(function () {  // 设置定时器避免渲染时被 info.checkContent 重新定义为 false
       let inputs = document.getElementsByClassName('param');
       // console.log(inputs)
@@ -169,6 +172,14 @@ export default {
       }
     },
 
+    // start & finish upload working
+    startUpload() {
+      this.ifUploaded = false;
+    },
+    finishUpload() {
+      this.ifUploaded = true;
+    },
+
     // upload images
     uploadImg(info) {
       let res = JSON.parse(info.xhr.response);
@@ -192,24 +203,30 @@ export default {
 
     // save infos
     async saveInfos() {
+      this.canUpdate = false;
+      setTimeout(() => {this.canUpdate = true;}, 1000);
       if (this.uploaded.length || this.remark) {
-        let params = {
-          imageUrl: this.uploaded.join('|'),
-          mouldNo: this.$store.getters.mould_list.mouldNo,
-          smallClass: this.$store.getters.detail_list.serialNo,
-          remark: this.remark,
-        };
-        let res = await addCheckDetail(params);
-        if (res.status === 1) {
-          this.$q.notify({color: 'green-5', message: '添加描述成功！'});
-          this.getList();
-          this.remark = '';
-          this.imgUrl = '';
-          this.uploaded = [];
-          this.$refs.uploaded.removeUploadedFiles();
+        if (this.uploaded.length && this.ifUploaded) {
+          let params = {
+            imageUrl: this.uploaded.join('|'),
+            mouldNo: this.$store.getters.mould_list.mouldNo,
+            smallClass: this.$store.getters.detail_list.serialNo,
+            remark: this.remark,
+          };
+          let res = await addCheckDetail(params);
+          if (res.status === 1) {
+            this.$q.notify({color: 'green-5', message: '添加描述成功！'});
+            this.getList();
+            this.remark = '';
+            this.imgUrl = '';
+            this.uploaded = [];
+            this.$refs.uploaded.removeUploadedFiles();
+          }
+        } else {
+          this.$q.notify({color: 'red-5', message: '请耐心等待图片上传完成，再点击提交！'});
         }
       } else {
-        this.$q.notify({color: 'red-5', message: '请填写相关内容并耐心等待图片上传完成，谢谢！'});
+        this.$q.notify({color: 'red-5', message: '请填写相关内容，再点击提交！'});
       }
     },
 
@@ -233,6 +250,8 @@ export default {
       nD: 0,
 
       uploaded: [],
+      canUpdate: true,
+      ifUploaded: true,
     }
   },
 }
