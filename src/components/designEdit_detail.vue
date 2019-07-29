@@ -375,7 +375,7 @@ export default {
 
     // save info
     async saveInfo() {
-      let condition = false;
+      let condition = true;
       this.canUpdate = false;
       setTimeout(() => {this.canUpdate = true;},1000);
       if (
@@ -384,7 +384,10 @@ export default {
         this.allInfo.improveDescribe ||
         this.allInfo.assessImage.length ||
         this.allInfo.presentSituationImage.length ||
-        this.allInfo.improveImage.length
+        this.allInfo.improveImage.length ||
+        this.assessImageUploaded.length ||
+        this.presentSituationImageUploaded.length ||
+        this.improveImageUploaded.length
       ) {
         if (
           this.allInfo.assessDescribe ||
