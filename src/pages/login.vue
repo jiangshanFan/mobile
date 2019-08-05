@@ -1,13 +1,20 @@
 <template>
   <div id="login" class="tc posr">
     <div class="login posa">
+      <div class="mb20">
+        <p class="title f20 fwb">YFPO 模具品质管理系统</p>
+        <span class="f12 c6">欢迎登录!</span>
+      </div>
+
       <q-form
         @submit="onSubmit"
         @reset="onReset"
         class="q-gutter-md"
       >
         <q-input
-          filled
+          class="user_info"
+          rounded
+          outlined
           bg-color="white"
           v-model="accountName"
           label="账户"
@@ -20,7 +27,9 @@
         </q-input>
 
         <q-input
-          filled
+          class="user_info"
+          rounded
+          outlined
           bg-color="white"
           type="password"
           v-model="pwd"
@@ -34,8 +43,8 @@
         </q-input>
 
         <div>
-          <q-btn label="Submit" type="submit" color="white" text-color="primary" />
-          <q-btn label="Reset" type="reset" color="white" flat class="q-ml-sm" />
+          <q-btn class="w100" label="登录" rounded type="submit" color="primary" text-color="white" size="20px" />
+          <!--<q-btn label="Reset" type="reset" color="white" flat class="q-ml-sm" />-->
         </div>
       </q-form>
     </div>
@@ -125,6 +134,10 @@
     > form {
       width: 80%;
       min-width: 240px;
+      .user_info {
+        line-height: 100px;
+        border-radius: 20px;
+      }
     }
   }
 </style>
