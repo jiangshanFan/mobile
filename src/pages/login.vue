@@ -131,6 +131,16 @@
     align-items: center;
     background: url("../assets/login_bg.png") no-repeat center 0;
     background-size: cover;
+    &:before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 100px;
+      height: 40px;
+      background: url("../assets/logo.png") no-repeat center 0;
+      background-size: 100px auto;
+    }
     > form {
       width: 80%;
       min-width: 240px;
