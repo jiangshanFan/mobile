@@ -71,7 +71,11 @@ module.exports = function (ctx) {
         'QUploader',
         'QUploaderAddTrigger',
         'QSpinner',
-        'QSpinnerBars'
+        'QSpinnerBars',
+        'QSpinnerIos',
+        'QTimeline',
+        'QTimelineEntry',
+        'QInnerLoading'
       ],
 
       directives: [
@@ -104,7 +108,7 @@ module.exports = function (ctx) {
       scssLoaderOptions: {
 
       },
-      extendWebpack (cfg) {
+      extendWebpack(cfg) {
         cfg.module.rules.push({
           enforce: 'pre',
           test: /\.(js|vue)$/,
@@ -116,7 +120,7 @@ module.exports = function (ctx) {
 
     devServer: {
       // https: true,
-      port: 8011,
+      // port: 8080,
       open: true, // opens browser window automatically
       proxy: {
         // proxy all requests starting with /api to jsonplaceholder
@@ -127,7 +131,7 @@ module.exports = function (ctx) {
             '^/api': ''
           }
         }
-      },
+      }
     },
 
     // animations: 'all', // --- includes all animations
@@ -162,7 +166,7 @@ module.exports = function (ctx) {
     electron: {
       // bundler: 'builder', // or 'packager'
 
-      extendWebpack (cfg) {
+      extendWebpack(cfg) {
         // do something with Electron main process Webpack cfg
         // chainWebpack also available besides this extendWebpack
       },

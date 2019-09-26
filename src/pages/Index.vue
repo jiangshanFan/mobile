@@ -4,26 +4,43 @@
       <div class="col h100" v-if="show">
         <!-- header -->
         <q-header elevated>
-          <q-toolbar class="text-white">
-            <q-btn round dense icon="menu" class="q-mr-xs">
-              <!-- Menu -->
-              <q-menu :content-style="{ fontSize: '0.5em' }" auto-close>
-                <q-list style="min-width: 100px">
-                  <!--<q-item clickable v-close-popup>
+          <q-toolbar class="text-top bg-top_Nav-color">
+            <span @click="clearStorage" class="exit">退出</span>
+            <!-- <q-btn round dense icon="menu" class="q-mr-xs"> -->
+            <!-- Menu -->
+            <!-- <q-menu :content-style="{ fontSize: '0.5em' }" auto-close>
+            <q-list style="min-width: 100px">-->
+            <!--<q-item clickable v-close-popup>
                     <q-item-section>修改密码</q-item-section>
                   </q-item>
-                  <q-separator />-->
-                  <q-item clickable v-close-popup>
+            <q-separator />-->
+            <!-- <q-item clickable v-close-popup>
                     <q-item-section @click="clearStorage">退出</q-item-section>
                   </q-item>
                 </q-list>
               </q-menu>
-            </q-btn>
+            </q-btn>-->
             <q-space />
-            <q-input filled v-model="search.value" placeholder="请输入项目名称或模号" dense style="width:90%;" color="white" bg-color="blue-3" :input-style="{ color: '#fff' }">
+            <q-input
+              outlined
+              v-model="search.value"
+              placeholder="请输入项目名称或模号"
+              dense
+              style="width:90%;"
+              color="white"
+              bg-color="white"
+              :input-style="{ color: '#999' }"
+            >
               <template v-slot:append>
-                <q-icon v-if="search.value !== ''" name="far fa-times-circle" color="white" @click="search.value = ''" class="cursor-pointer" style="font-size:0.8em;" />
-                <q-icon name="fas fa-search" color="white" @click="searchInfo" />
+                <q-icon
+                  v-if="search.value !== ''"
+                  name="far fa-times-circle"
+                  color="white"
+                  @click="search.value = ''"
+                  class="cursor-pointer"
+                  style="font-size:0.8em;"
+                />
+                <q-icon name="fas fa-search" color="#878787" @click="searchInfo" />
               </template>
             </q-input>
           </q-toolbar>
@@ -43,23 +60,23 @@
                     <q-card-section>
                       <q-list>
                         <div class="col" v-for="(item,index) in items.mouldList" :key="index">
-                          <q-item clickable v-ripple @click="edits({...item, projectName: items.projectName})">
+                          <q-item
+                            clickable
+                            v-ripple
+                            @click="edits({...item, projectName: items.projectName})"
+                          >
                             <q-item-section avatar>
                               <q-avatar>
-                                <img src="../assets/null_img.png">
+                                <img src="../assets/null_img.png" />
                               </q-avatar>
                             </q-item-section>
 
                             <q-item-section>
                               <q-item-label class="text-weight-bold" lines="1">{{item.mouldNo}}</q-item-label>
-                              <q-item-label caption lines="1">
-                                {{item.partName}}
-                              </q-item-label>
+                              <q-item-label caption lines="1">{{item.partName}}</q-item-label>
                             </q-item-section>
 
-                            <q-item-section side>
-                              {{item.leader}}
-                            </q-item-section>
+                            <q-item-section side>{{item.leader}}</q-item-section>
                           </q-item>
                           <q-separator inset="item" />
                         </div>
@@ -84,13 +101,13 @@
 
 <script>
 /* eslint-disable */
-import { getProjectList, loginOut } from '../axios/api'
-import detailList from '../components/detailList'
+import { getProjectList, loginOut } from "../axios/api";
+import detailList from "../components/detailList";
 
 export default {
-  name: 'mould',
+  name: "mould",
   components: {
-    'AddOrEdit': detailList,
+    AddOrEdit: detailList
   },
   async created() {
     this.getProjectList();
@@ -108,21 +125,21 @@ export default {
         } else {
           res = await getProjectList();
         }
-        if(res.status === 1) {
+        if (res.status === 1) {
           this.projectList = res.msg;
           if (!res.msg.length) {
             this.$q.notify({
-              color: 'yellow-5',
-              textColor: 'orange',
-              icon: 'fas fa-exclamation-triangle',
-              position: 'center',
+              color: "yellow-5",
+              textColor: "orange",
+              icon: "fas fa-exclamation-triangle",
+              position: "center",
               timeout: 1000,
-              message: '暂无相关信息！'
+              message: "暂无相关信息！"
             });
           }
         }
-      }catch (e) {
-        console.log(e)
+      } catch (e) {
+        console.log(e);
       }
     },
 
@@ -135,15 +152,15 @@ export default {
     async clearStorage() {
       let res = await loginOut();
       if (res.status === 1) {
-        sessionStorage.clear();  /* only clear all info, the routes will be right, or not go to the method of set_router.js */
-        this.$router.push('/login');
+        sessionStorage.clear(); /* only clear all info, the routes will be right, or not go to the method of set_router.js */
+        this.$router.push("/login");
       }
     },
 
     // edit info
     edits(item) {
       this.show = !this.show;
-      this.$store.dispatch('mould_list', item);
+      this.$store.dispatch("mould_list", item);
     },
 
     // show default module
@@ -152,19 +169,35 @@ export default {
         this.show = !this.show;
         this.getProjectList();
       }
-    },
+    }
   },
 
   data() {
     return {
       search: {
-        value: '',
+        value: ""
       },
       projectList: [],
 
       // if show the components
-      show: true,
-    }
-  },
-}
+      show: true
+    };
+  }
+};
 </script>
+<style lang="scss" scoped>
+.exit {
+  font-size: 16px;
+  font-family: "Source Han Sans CN";
+  font-weight: 400;
+  color: rgba(35, 35, 35, 1);
+}
+.q-card > div:last-child,
+.q-card > img:last-child {
+  border-bottom: 0;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+  background-color: rgba(245, 245, 245, 1);
+}
+
+</style>

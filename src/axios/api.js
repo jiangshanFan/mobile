@@ -43,3 +43,17 @@ export const getDesignStatistics = data => {return $ajax({url: '/api/project/get
 export const getDesignInfoByMouldNo = data => {return $ajax({url: '/api/project/getDesignInfoByMouldNo', method: 'get', params: data,})};
 //更新设计评审清单结果
 export const updateDesignInfo = data => {return $ajax({url: '/api/project/updateDesignInfo', method: 'post', data: data, meta: 1, })};
+//获取评论信息
+export const getRemarkList=data=>{return $ajax({url:'/api/project/getRemarkList',method:'get',params:data,})};
+//提交评论信息
+export const submitRemarks = data => {return $ajax({url: '/api/project/submitRemarks', method: 'post', data: data, meta: 1, })};
+//保存详情
+export const saveCheckDetail = data => {return $ajax({url: '/api/project/saveCheckDetail', method: 'post', data: data, meta: 1, })};
+//获取详情草稿
+export const getCheckDetail = data => {return $ajax({url: '/api/project/getCheckDetail', method: 'get', params:data, })};
+//上传多附件接口
+export const uploadManyEnclosure = data => {return $ajax({url: '/api/upload/file/uploadManyEnclosure', method: 'post', data: data, meta: 1, })};
+//删除附件
+export const deleteEnclosure = data => {return $ajax({url: '/api/project/deleteEnclosure', method: 'get', params:data, })};
+//获取附件
+export const getEnclosureList = data => {return $ajax({url: '/api/project/getEnclosureList', method: 'get', params:data, })};
