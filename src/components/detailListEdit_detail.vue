@@ -249,7 +249,7 @@
                               </div>
                             </template>
                           </q-img>
-                          <div style="margin-top:10px; border:1px sliod #ddd;">
+                          <div style="margin-top:10px; border:1px solid #ddd;">
                             <div style="color:#333;">图片说明：</div>
                             <pre
                               style="white-space:pre-wrap; overflow:auto; height:80px; margin-top:-3px;"
