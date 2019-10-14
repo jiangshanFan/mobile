@@ -49,12 +49,7 @@
                                 <span
                                   style="color:#333333; font-family:Microsoft YaHei; font-weight:bold;"
                                 >内容附件</span>
-                                <q-btn
-                                  color="btn"
-                                  label="添加附件"
-                                  size="xs"
-                                  style="margin-left:20px;"
-                                >
+                                <q-btn color="btn" label="添加附件" size="xs" style="margin-left:20px;">
                                   <q-uploader-add-trigger />
                                 </q-btn>
                               </div>
@@ -134,7 +129,7 @@
                         </q-item-section>
 
                         <q-item-section>
-                          <q-item-label class="full-width ellipsis"></q-item-label>
+                          <q-input placeholder="请输入备注" v-model="text[file.__img.src]" outlined />
                         </q-item-section>
 
                         <q-item-section side>
@@ -144,29 +139,52 @@
                         </q-item-section>
                       </q-item>
                     </q-list>
+                    <!-- <q-list separator>
+                      <q-item v-for="(item,index) in imgList" :key="index">
+                        <q-item-section v-if="item" thumbnail>
+                          <img :src="item" />
+                        </q-item-section>
+
+                        <q-item-section>
+                          <q-item-label class="full-width ellipsis">
+                            <q-input placeholder="请输入备注" v-model="text[item]" outlined />
+                          </q-item-label>
+                        </q-item-section>
+
+                        <q-item-section side>
+                          <q-btn size="12px" flat dense @click="deleteShowImg(index)">
+                            <q-icon name="fas fa-trash" />
+                          </q-btn>
+                        </q-item-section>
+                      </q-item>
+                    </q-list> -->
                     <!-- 上传展示区 -->
-                    <q-item v-for="(item,index) in fileList" :key="index">
-                      <q-item-section v-if="item.url">
-                        <q-img :src="item.url" class="imageStyle">
-                          <template v-slot:loading>
-                            <div class="text-#c0c4cc divVstyle">
-                              <q-spinner-ios color="#c0c4cc" :size="16" />
-                              <div class="q-mt-md fzStyle">Loading...</div>
-                            </div>
-                          </template>
-                        </q-img>
-                      </q-item-section>
+                    <!-- <q-list separator>
+                      <q-item v-for="(item,index) in fileList" :key="index">
+                        <q-item-section v-if="item.url" thumbnail style="width:116px;">
+                          <q-img :src="item.url" class="imageStyle">
+                            <template v-slot:loading>
+                              <div class="text-#c0c4cc divVstyle">
+                                <q-spinner-ios color="#c0c4cc" :size="16" />
+                                <div class="q-mt-md fzStyle">Loading...</div>
+                              </div>
+                            </template>
+                          </q-img>
+                        </q-item-section>
 
-                      <q-item-section>
-                        <q-item-label class="full-width ellipsis"></q-item-label>
-                      </q-item-section>
+                        <q-item-section>
+                          <q-item-label class="full-width ellipsis">
+                            <q-input outlined />
+                          </q-item-label>
+                        </q-item-section>
 
-                      <q-item-section side>
-                        <q-btn size="12px" flat dense @click="deleteShowImg(item)">
-                          <q-icon name="fas fa-trash" />
-                        </q-btn>
-                      </q-item-section>
-                    </q-item>
+                        <q-item-section side>
+                          <q-btn size="12px" flat dense @click="deleteShowImg(item)">
+                            <q-icon name="fas fa-trash" />
+                          </q-btn>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>-->
                     <!-- 结束 -->
                   </template>
                 </q-uploader>
@@ -231,6 +249,12 @@
                               </div>
                             </template>
                           </q-img>
+                          <div style="margin-top:10px; border:1px sliod #ddd;">
+                            <div style="color:#333;">图片说明：</div>
+                            <pre
+                              style="white-space:pre-wrap; overflow:auto; height:80px; margin-top:-3px;"
+                            >{{item.imageDescribe?item.imageDescribe.split("|")[index]:''}}</pre>
+                          </div>
                         </div>
                       </div>
                     </q-timeline-entry>
@@ -272,10 +296,12 @@ export default {
     this.getList();
     this.getDetail();
     this.getEnclosure();
+    
   },
 
   mounted() {
-    // colors.setBrand("primary", "#F33", document.getElementById("dom元素")); 不获取dom元素全局变色及单个组件变色必须获取dom元素 必须在dom元素生成之后变色
+    console.log(this.text);
+    // colors.setBrand("primary", "#F33", document.getElementById("dom元素")); 不获取dom元素全局变色及单个组件元素变色必须获取dom元素 必须在dom元素生成之后变色
     this.ifUploaded = true;
     setTimeout(function() {
       // 设置定时器避免渲染时被 info.checkContent 重新定义为 false
@@ -288,29 +314,93 @@ export default {
   },
 
   methods: {
+    // 添加文件到上传区
+    addUploadedFile() {
+      let files = [];
+      this.url.forEach((item,index) => {
+        files[index] = new File([''], `${item}`);
+        files[index].__img = {
+          src: item
+        }
+      })
+      this.files = files;
+      console.log(this.files);
+      this.$refs.uploaded.files = this.files;
+    },
+    //图片备注处理方法
+    upImgRemarks() {
+      let res = this.$refs.uploaded.files.map(item => item.__img.src);
+      let obj = JSON.parse(JSON.stringify(this.text));
+      // 清空 textOne，避免在删除某一项后 textOne没有清除
+      this.textOne = [];
+      // 保存前需要判断是否还存在图片，如果没有需要清空 textOne,否则会造成 imageDescribe 不为空
+      if (res.length) {
+        res.forEach((item, index) => {
+          if (Object.keys(obj).indexOf(item) === -1) {
+            this.textOne[item] = "";
+          } else {
+            this.textOne[item] = obj[item];
+          }
+        });
+      }
+      
+      console.log(Object.keys(this.textOne).map(item => this.textOne[item]));
+      let arr = [];
+      for (let [key, value] of Object.entries(this.textOne)) {
+        arr.push(value);
+      }
+      this.upImgData = arr.join("|");
+    },
     // 保存详情
-    async saveCheck() {
+    async saveCheck(val = 1) {
+      let canUpdate = false;
+      if (val) {
+        this.upImgRemarks();
+      }
       if (
         !this.messageShow ||
         this.remark !== "" ||
-        this.imgList.length !== 0
+        this.imgList.length !== 0 ||
+        this.$refs.uploaded.files.length !== 0
       ) {
-        let image = this.imgList.join("|");
-        let res = await saveCheckDetail({
-          id: this.id,
-          imageUrl: image,
-          mouldNo: this.$store.getters.mould_list.mouldNo,
-          remark: this.remark,
-          smallClass: this.$store.getters.detail_list.serialNo
-        });
-        if (res.status == 1) {
-          if (this.messageShow) {
-            this.$q.notify({ color: "green-5", message: "保存成功" });
-          } else {
-            this.fileList = [];
-            this.imgList = [];
-            this.remark = "";
-            this.messageShow = true;
+        if (
+          !this.messageShow ||
+          this.remark !== "" ||
+          this.imgList.length !== 0
+        ) {
+          canUpdate = true;
+        }
+        if (this.ifUploaded) {
+          canUpdate = true;
+        } else {
+          canUpdate = false;
+          this.$q.notify({
+            color: "red-5",
+            message: "请耐心等待图片上传完成，再点击提交！"
+          });
+        }
+        if (canUpdate) {
+          let image = this.imgList.join("|");
+          let res = await saveCheckDetail({
+            id: this.id,
+            imageUrl: image,
+            mouldNo: this.$store.getters.mould_list.mouldNo,
+            remark: this.remark,
+            smallClass: this.$store.getters.detail_list.serialNo,
+            imageDescribe: this.upImgData
+          });
+          if (res.status == 1) {
+            if (this.messageShow) {
+              this.$q.notify({ color: "green-5", message: "保存成功" });
+              // // 暂存后清空当前的 uploaded 上传组件的文件选择，避免删除某一张图片后无法再次选择此照片
+              // this.$refs.uploaded.reset();
+            } else {
+              // imgList 表示展示照片，需要在暂存时清空
+              this.imgList = [];
+              this.remark = "";
+              this.uploaded = [];
+              this.messageShow = true;
+            }
           }
         }
       } else {
@@ -324,34 +414,32 @@ export default {
         smallClass: this.$store.getters.detail_list.serialNo
       });
       if (data.status === 1 && data.msg !== null) {
+        
         this.id = data.msg.id;
         this.remark = data.msg.remark;
         if (data.msg.imageUrl !== "") {
           this.url = data.msg.imageUrl.split("|");
+          
+          let arr = [];
+          if (data.msg.imageDescribe) {
+            arr = data.msg.imageDescribe.split("|");
+          }
+          let obj = {};
           for (let i = 0; i < this.url.length; i++) {
-            this.fileList.push({ url: this.url[i] });
             this.imgList.push(this.url[i]);
+            obj[this.url[i]] = arr[i];
             this.uploaded.push(this.url[i]);
           }
+          console.log(this.imgList)
+          this.addUploadedFile();
+          this.text = Object.assign({}, obj);
         }
       }
       if (!this.messageShow) {
-        this.fileList = [];
         this.imgList = [];
         this.remark = "";
+        this.uploaded = [];
         this.saveCheck();
-      }
-    },
-    //删除暂存数据
-    deleteShowImg(item) {
-      this.imgList = [];
-      for (let i = 0; i < this.fileList.length; i++) {
-        if (this.fileList[i].url === item.url) {
-          this.fileList.splice(i, 1);
-          this.fileList.forEach(item => {
-            this.imgList.push(item.url);
-          });
-        }
       }
     },
     //获取附件
@@ -439,15 +527,31 @@ export default {
     },
 
     // delete updated list of images
-    deleteImg(file, type, val = 0) {
+    // deleteShowImg(index) {
+    //   for (let i = 0; i < this.imgList.length; i++) {
+    //     if (i == index) {
+    //       this.imgList.splice(i, 1);
+    //       // this.$refs.uploaded.removeFile(file);
+    //     }
+    //   }
+    // },
+
+    deleteImg(file, type, val=0) {
       if (val) {
-        let res = JSON.parse(file.xhr.response);
         this.$refs[type].removeFile(file);
-        this[type].forEach((item, index) => {
-          if (item === res.msg[0].url) {
-            this[type].splice(index, 1);
+        this.imgList.forEach((item, index) => {
+          if (item === file.__img.src) {
+            this.imgList.splice(index, 1);
+            delete this.text[file.__img.src];
+          } else if (file.xhr) {
+            if (item === JSON.parse(file.xhr.response).msg[0].url) {
+              this.imgList.splice(index, 1);
+              // 可以不要
+              delete this.text[file.__img.src];
+            }
           }
         });
+        console.log(this.imgList)
       }
     },
 
@@ -469,11 +573,13 @@ export default {
           });
         }
         if (canUpdate) {
+          this.upImgRemarks();
           let params = {
             imageUrl: this.uploaded.join("|"),
             mouldNo: this.$store.getters.mould_list.mouldNo,
             smallClass: this.$store.getters.detail_list.serialNo,
-            remark: this.remark
+            remark: this.remark,
+            imageDescribe: this.upImgData
           };
           let res = await addCheckDetail(params);
           if (res.status === 1) {
@@ -481,11 +587,19 @@ export default {
             this.$q.notify({ color: "green-5", message: "添加描述成功！" });
             this.imgUrl = "";
             this.uploaded = [];
-            this.$refs.uploaded.removeUploadedFiles();
             this.fileList = [];
             this.url = [];
+            // 提交后清空当前上传区的所有信息
+            this.$refs.uploaded.reset();
+            //上传清空图片数据源
+            this.imgList = [];
+            this.uploaded = [];
+            //上传后清空备注数据
+            this.upImgData = "";
             this.getList();
-            this.getDetail();
+            // this.getDetail();
+            this.remark = "";
+            this.saveCheck(0);
           }
         }
       } else {
@@ -549,7 +663,15 @@ export default {
       fileData: [],
       url: [],
       id: "",
-      messageShow: true
+      messageShow: true,
+      //图片备注数据
+      text: {},
+      //照片数据处理
+      upImgData: "",
+      // 获取暂存的图片的信息
+      files: [],
+      // 保存已经上传过并保存或提交的图片的备注
+      textOne: {},
     };
   }
 };
@@ -557,7 +679,7 @@ export default {
 
 <style lang="scss" scoped>
 .q-card__section {
-  padding:0;
+  padding: 0;
 }
 .q-item > .q-item__section--thumbnail:first-child,
 .q-item > .q-focus-helper + .q-item__section--thumbnail {
@@ -666,8 +788,8 @@ export default {
 }
 
 .imgStyle {
-  height: 140px;
-  max-width: 160px;
+  height: 130px;
+  max-width: 130px;
   background-color: #f5f7fa;
   .divStyle {
     text-align: center;

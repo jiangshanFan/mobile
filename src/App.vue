@@ -140,7 +140,7 @@ export default {
   height: 16px;
   background: url("./assets/develoop.png");
 }
-.q-item{
+.q-item {
   padding: 0 10px;
 }
 </style>

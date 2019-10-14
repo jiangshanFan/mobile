@@ -309,7 +309,7 @@
                             size="12px"
                             flat
                             dense
-                            @click="deleteImg(file,'assessImageUploaded', 1)"
+                            @click="deleteImg(file,'presentSituationImageUploaded', 1)"
                           >
                             <q-icon name="fas fa-trash" />
                           </q-btn>
@@ -427,7 +427,7 @@
                             size="12px"
                             flat
                             dense
-                            @click="deleteImg(file,'assessImageUploaded', 1)"
+                            @click="deleteImg(file,'improveImageUploaded', 1)"
                           >
                             <q-icon name="fas fa-trash" />
                           </q-btn>
