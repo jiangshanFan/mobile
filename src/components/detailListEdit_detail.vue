@@ -129,7 +129,9 @@
                         </q-item-section>
 
                         <q-item-section>
-                          <q-input placeholder="请输入备注" v-model="text[file.__img.src]" outlined />
+                          <!-- 使用 file.__img.src ，由于获取的是base64的dataURL地址，对于图片和图片的副本会获取相同的 dataURL，
+                          因为两者本身是相同的，造成两个input的v-modal相同，所以考虑使用 name -->
+                          <q-input placeholder="请输入备注" v-model="text[file.name]" outlined />
                         </q-item-section>
 
                         <q-item-section side>
@@ -139,53 +141,6 @@
                         </q-item-section>
                       </q-item>
                     </q-list>
-                    <!-- <q-list separator>
-                      <q-item v-for="(item,index) in imgList" :key="index">
-                        <q-item-section v-if="item" thumbnail>
-                          <img :src="item" />
-                        </q-item-section>
-
-                        <q-item-section>
-                          <q-item-label class="full-width ellipsis">
-                            <q-input placeholder="请输入备注" v-model="text[item]" outlined />
-                          </q-item-label>
-                        </q-item-section>
-
-                        <q-item-section side>
-                          <q-btn size="12px" flat dense @click="deleteShowImg(index)">
-                            <q-icon name="fas fa-trash" />
-                          </q-btn>
-                        </q-item-section>
-                      </q-item>
-                    </q-list> -->
-                    <!-- 上传展示区 -->
-                    <!-- <q-list separator>
-                      <q-item v-for="(item,index) in fileList" :key="index">
-                        <q-item-section v-if="item.url" thumbnail style="width:116px;">
-                          <q-img :src="item.url" class="imageStyle">
-                            <template v-slot:loading>
-                              <div class="text-#c0c4cc divVstyle">
-                                <q-spinner-ios color="#c0c4cc" :size="16" />
-                                <div class="q-mt-md fzStyle">Loading...</div>
-                              </div>
-                            </template>
-                          </q-img>
-                        </q-item-section>
-
-                        <q-item-section>
-                          <q-item-label class="full-width ellipsis">
-                            <q-input outlined />
-                          </q-item-label>
-                        </q-item-section>
-
-                        <q-item-section side>
-                          <q-btn size="12px" flat dense @click="deleteShowImg(item)">
-                            <q-icon name="fas fa-trash" />
-                          </q-btn>
-                        </q-item-section>
-                      </q-item>
-                    </q-list>-->
-                    <!-- 结束 -->
                   </template>
                 </q-uploader>
 
@@ -329,7 +284,7 @@ export default {
     },
     //图片备注处理方法
     upImgRemarks() {
-      let res = this.$refs.uploaded.files.map(item => item.__img.src);
+      let res = this.$refs.uploaded.files.map(item => item.name);
       let obj = JSON.parse(JSON.stringify(this.text));
       // 清空 textOne，避免在删除某一项后 textOne没有清除
       this.textOne = [];
@@ -540,18 +495,16 @@ export default {
       if (val) {
         this.$refs[type].removeFile(file);
         this.imgList.forEach((item, index) => {
-          if (item === file.__img.src) {
+          if (item === file.name) {
             this.imgList.splice(index, 1);
-            delete this.text[file.__img.src];
+            delete this.text[file.name];
           } else if (file.xhr) {
             if (item === JSON.parse(file.xhr.response).msg[0].url) {
               this.imgList.splice(index, 1);
-              // 可以不要
-              delete this.text[file.__img.src];
+              delete this.text[file.name];
             }
           }
         });
-        console.log(this.imgList)
       }
     },
 
@@ -575,7 +528,7 @@ export default {
         if (canUpdate) {
           this.upImgRemarks();
           let params = {
-            imageUrl: this.uploaded.join("|"),
+            imageUrl: this.imgList.join("|"),
             mouldNo: this.$store.getters.mould_list.mouldNo,
             smallClass: this.$store.getters.detail_list.serialNo,
             remark: this.remark,
@@ -594,6 +547,8 @@ export default {
             //上传清空图片数据源
             this.imgList = [];
             this.uploaded = [];
+            // 上传后由于不会跳出当前页，所以需要将所有的备注信息清空
+            this.text = {};
             //上传后清空备注数据
             this.upImgData = "";
             this.getList();
