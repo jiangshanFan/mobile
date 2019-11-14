@@ -125,7 +125,7 @@ module.exports = function (ctx) {
       proxy: {
         // proxy all requests starting with /api to jsonplaceholder
         '/api': {
-          target: 'http://10.9.1.79:62568',
+          target: 'http://10.9.1.77:62568',
           changeOrigin: true,
           pathRewrite: {
             '^/api': ''
