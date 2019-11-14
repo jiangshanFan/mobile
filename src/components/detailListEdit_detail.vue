@@ -123,15 +123,21 @@
                   </template>
                   <template v-slot:list="scope">
                     <q-list separator>
-                      <q-item v-for="file in scope.files" :key="file.name">
+                      <q-item v-for="(file,index) in scope.files" :key="index">
                         <q-item-section v-if="file.__img" thumbnail>
                           <img :src="file.__img.src" />
                         </q-item-section>
 
                         <q-item-section>
-                          <!-- 使用 file.__img.src ，由于获取的是base64的dataURL地址，对于图片和图片的副本会获取相同的 dataURL，
-                          因为两者本身是相同的，造成两个input的v-modal相同，所以考虑使用 name -->
-                          <q-input placeholder="请输入备注" v-model="text[file.name]" outlined />
+                          <q-item-label class="full-width ellipsis">
+                            <q-input
+                              placeholder="请输入备注"
+                              type="textarea"
+                              :input-style="{ height: '56px' }"
+                              v-model="text[file.name]"
+                              outlined
+                            />
+                          </q-item-label>
                         </q-item-section>
 
                         <q-item-section side>
@@ -141,6 +147,37 @@
                         </q-item-section>
                       </q-item>
                     </q-list>
+                    <!-- 上传展示区 -->
+                    <q-item v-for="(item,index) in fileList" :key="index">
+                      <q-item-section v-if="item.url" thumbnail style="width:116px;">
+                        <q-img :src="item.url" class="imageStyle">
+                          <template v-slot:loading>
+                            <div class="text-#c0c4cc divVstyle">
+                              <q-spinner-ios color="#c0c4cc" :size="16" />
+                              <div class="q-mt-md fzStyle">Loading...</div>
+                            </div>
+                          </template>
+                        </q-img>
+                      </q-item-section>
+
+                      <q-item-section>
+                        <q-item-label class="full-width ellipsis">
+                          <q-input
+                            outlined
+                            type="textarea"
+                            :input-style="{ height: '56px' }"
+                            v-model="text[item.url]"
+                          />
+                        </q-item-label>
+                      </q-item-section>
+
+                      <q-item-section side>
+                        <q-btn size="12px" flat dense @click="deleteShowImg(item)">
+                          <q-icon name="fas fa-trash" />
+                        </q-btn>
+                      </q-item-section>
+                    </q-item>
+                    <!-- 结束 -->
                   </template>
                 </q-uploader>
 
@@ -204,7 +241,10 @@
                               </div>
                             </template>
                           </q-img>
-                          <div style="margin-top:10px; border:1px solid #ddd;">
+                          <div
+                            style="margin-top:10px; border:1px solid #ddd; padding:8px;"
+                            v-if="item.imageDescribe"
+                          >
                             <div style="color:#333;">图片说明：</div>
                             <pre
                               style="white-space:pre-wrap; overflow:auto; height:80px; margin-top:-3px;"
@@ -251,12 +291,10 @@ export default {
     this.getList();
     this.getDetail();
     this.getEnclosure();
-    
   },
 
   mounted() {
-    console.log(this.text);
-    // colors.setBrand("primary", "#F33", document.getElementById("dom元素")); 不获取dom元素全局变色及单个组件元素变色必须获取dom元素 必须在dom元素生成之后变色
+    // colors.setBrand("primary", "#F33", document.getElementById("dom元素")); 不获取dom元素全局变色及单个组件变色必须获取dom元素 必须在dom元素生成之后变色
     this.ifUploaded = true;
     setTimeout(function() {
       // 设置定时器避免渲染时被 info.checkContent 重新定义为 false
@@ -266,72 +304,66 @@ export default {
         inputs[i].disabled = true;
       }
     }, 200);
+    let rse = window.location;
+    this.downloadUrl = rse.origin;
   },
 
   methods: {
-    // 添加文件到上传区
-    addUploadedFile() {
-      let files = [];
-      this.url.forEach((item,index) => {
-        files[index] = new File([''], `${item}`);
-        files[index].__img = {
-          src: item
-        }
-      })
-      this.files = files;
-      console.log(this.files);
-      this.$refs.uploaded.files = this.files;
-    },
     //图片备注处理方法
     upImgRemarks() {
-      let res = this.$refs.uploaded.files.map(item => item.name);
       let obj = JSON.parse(JSON.stringify(this.text));
-      // 清空 textOne，避免在删除某一项后 textOne没有清除
-      this.textOne = [];
-      // 保存前需要判断是否还存在图片，如果没有需要清空 textOne,否则会造成 imageDescribe 不为空
-      if (res.length) {
-        res.forEach((item, index) => {
-          if (Object.keys(obj).indexOf(item) === -1) {
-            this.textOne[item] = "";
-          } else {
-            this.textOne[item] = obj[item];
-          }
-        });
-      }
-      
-      console.log(Object.keys(this.textOne).map(item => this.textOne[item]));
+      // console.log(obj)
+      // let obj1=Object.keys(obj)
+      // let arr1 = [];
+      // for (let i in obj) {
+      //   arr1.push(obj[i]);
+      //   console.log(obj[i])
+      // }
+      // this.text = {};
+      // for (let i = 0; i < this.imgList.length; i++) {
+      //   for (let j = 0; j < arr1.length; j++) {
+      //     if (i == j) {
+      //       this.text[i] = arr1[j];
+      //     }
+      //   }
+      // }
+      let res = this.$refs.uploaded.files;
+      res.forEach(item => {
+        if (Object.keys(obj).indexOf(item.name) === -1) {
+          this.text[JSON.parse(item.xhr.response).msg[0].url] = " ";
+        } else {
+          this.text[JSON.parse(item.xhr.response).msg[0].url] = obj[item.name];
+        }
+      });
       let arr = [];
-      for (let [key, value] of Object.entries(this.textOne)) {
-        arr.push(value);
+      // console.log(this.text)
+      for (let [key, value] of Object.entries(this.text)) {
+        if (this.imgList.indexOf(key) !== -1) {
+          arr.push(value);
+        }
       }
       this.upImgData = arr.join("|");
     },
     // 保存详情
-    async saveCheck(val = 1) {
-      let canUpdate = false;
-      if (val) {
-        this.upImgRemarks();
-      }
+    async saveCheck() {
+      this.upImgRemarks();
+      this.canUpdate = false;
+      setTimeout(() => {
+        this.canUpdate = true;
+      }, 1000);
       if (
         !this.messageShow ||
         this.remark !== "" ||
-        this.imgList.length !== 0 ||
-        this.$refs.uploaded.files.length !== 0
+        this.imgList.length !== 0
       ) {
-        if (
-          !this.messageShow ||
-          this.remark !== "" ||
-          this.imgList.length !== 0
-        ) {
-          canUpdate = true;
-        }
+        let canUpdate = true;
         if (this.ifUploaded) {
           canUpdate = true;
         } else {
           canUpdate = false;
           this.$q.notify({
             color: "red-5",
-            message: "请耐心等待图片上传完成，再点击提交！"
+            message: "请耐心等待图片上传完成，再点击保存！"
           });
         }
         if (canUpdate) {
@@ -347,54 +379,90 @@ export default {
           if (res.status == 1) {
             if (this.messageShow) {
               this.$q.notify({ color: "green-5", message: "保存成功" });
-              // // 暂存后清空当前的 uploaded 上传组件的文件选择，避免删除某一张图片后无法再次选择此照片
-              // this.$refs.uploaded.reset();
+              this.$refs.uploaded.removeUploadedFiles();
+              this.imgList = [];
+              this.fileList = [];
+              this.getDetail();
             } else {
-              // imgList 表示展示照片，需要在暂存时清空
+              this.fileList = [];
               this.imgList = [];
               this.remark = "";
-              this.uploaded = [];
               this.messageShow = true;
             }
           }
+          // console.log(this.fileList);
+          // console.log(this.imgList);
+        } else {
+          if (!this.ifUploaded) {
+            this.$q.notify({
+              color: "red-5",
+              message: "请耐心等待图片上传完成，再点击保存！"
+            });
+          } else {
+            this.$q.notify({
+              color: "red-5",
+              message: "请填写相关内容，再点击保存！"
+            });
+          }
         }
-      } else {
-        this.$q.notify({ color: "red-5", message: "请输入之后保存" });
       }
     },
     async getDetail() {
+      this.uploaded = [];
       //获取详情草稿
       let data = await getCheckDetail({
         mouldNo: this.$store.getters.mould_list.mouldNo,
         smallClass: this.$store.getters.detail_list.serialNo
       });
       if (data.status === 1 && data.msg !== null) {
-        
         this.id = data.msg.id;
         this.remark = data.msg.remark;
         if (data.msg.imageUrl !== "") {
+          // url为获取到的imageurl切割之后的数组
           this.url = data.msg.imageUrl.split("|");
-          
           let arr = [];
           if (data.msg.imageDescribe) {
             arr = data.msg.imageDescribe.split("|");
           }
           let obj = {};
+          this.url = this.url.map((item, index) => ({
+            name: index,
+            url: item
+          }));
           for (let i = 0; i < this.url.length; i++) {
-            this.imgList.push(this.url[i]);
-            obj[this.url[i]] = arr[i];
-            this.uploaded.push(this.url[i]);
+            // 赋值给展示数据源
+            this.fileList.push({ url: this.url[i].url });
+            // 赋值给上传携带图片路径数据
+            this.imgList.push(this.url[i].url);
+            obj[this.url[i].url] = arr[i];
+            this.uploaded.push(this.url[i].url);
           }
-          console.log(this.imgList)
-          this.addUploadedFile();
           this.text = Object.assign({}, obj);
         }
       }
       if (!this.messageShow) {
+        // 获取详情是如果messageShow的bool值为false  则证明他是被提交过得  这个时候清空所有路径及备注  然后调用保存方法  避免已提交的照片再次出现
+        this.fileList = [];
         this.imgList = [];
         this.remark = "";
-        this.uploaded = [];
         this.saveCheck();
+      }
+    },
+    //删除暂存数据
+    deleteShowImg(item) {
+      this.imgList = [];
+      this.uploaded = [];
+      for (let i = 0; i < this.fileList.length; i++) {
+        if (this.fileList[i].url === item.url) {
+          this.fileList.splice(i, 1);
+          this.fileList.forEach(item => {
+            this.imgList.push(item.url);
+            this.uploaded.push(item.url);
+          });
+        }
+      }
+      if (this.fileList.length == 0) {
+        this.messageShow = false;
       }
     },
     //获取附件
@@ -408,7 +476,9 @@ export default {
         this.fileData = [];
         res.msg.forEach(item => {
           let download =
-            item.url + `?filename=${item.fileName.replace(/[&,#\\]/g, "")}`;
+            this.downloadUrl +
+            item.url +
+            `?filename=${item.fileName.replace(/[&,#\\]/g, "")}`;
           this.fileData.push({
             url: download,
             filename: item.fileName,
@@ -475,6 +545,9 @@ export default {
     // upload images
     uploadImg(info) {
       let res = JSON.parse(info.xhr.response);
+      console.log(info);
+      this.text[res.msg[0].url] = this.text[info.files[0].name];
+      // console.log(this.text)
       let img = res.msg[0].url;
       this.imgUrl += img + "|";
       this.uploaded.push(img);
@@ -482,27 +555,19 @@ export default {
     },
 
     // delete updated list of images
-    // deleteShowImg(index) {
-    //   for (let i = 0; i < this.imgList.length; i++) {
-    //     if (i == index) {
-    //       this.imgList.splice(i, 1);
-    //       // this.$refs.uploaded.removeFile(file);
-    //     }
-    //   }
-    // },
-
-    deleteImg(file, type, val=0) {
+    deleteImg(file, type, val = 0) {
       if (val) {
+        this.imgList = [];
+        let res = JSON.parse(file.xhr.response);
         this.$refs[type].removeFile(file);
-        this.imgList.forEach((item, index) => {
-          if (item === file.name) {
-            this.imgList.splice(index, 1);
-            delete this.text[file.name];
-          } else if (file.xhr) {
-            if (item === JSON.parse(file.xhr.response).msg[0].url) {
-              this.imgList.splice(index, 1);
-              delete this.text[file.name];
-            }
+        console.log(this[type]);
+        console.log(res.msg[0].url);
+        this[type].forEach((item, index) => {
+          if (item === res.msg[0].url) {
+            this[type].splice(index, 1);
+            this[type].forEach(item => {
+              this.imgList.push(item);
+            });
           }
         });
       }
@@ -510,6 +575,7 @@ export default {
 
     // save infos
     async saveInfos() {
+      this.upImgRemarks();
       this.canUpdate = false;
       setTimeout(() => {
         this.canUpdate = true;
@@ -526,9 +592,8 @@ export default {
           });
         }
         if (canUpdate) {
-          this.upImgRemarks();
           let params = {
-            imageUrl: this.imgList.join("|"),
+            imageUrl: this.uploaded.join("|"),
             mouldNo: this.$store.getters.mould_list.mouldNo,
             smallClass: this.$store.getters.detail_list.serialNo,
             remark: this.remark,
@@ -536,25 +601,19 @@ export default {
           };
           let res = await addCheckDetail(params);
           if (res.status === 1) {
+            // 点击提交之后messageShow 的bool值为false
             this.messageShow = false;
             this.$q.notify({ color: "green-5", message: "添加描述成功！" });
             this.imgUrl = "";
             this.uploaded = [];
+            this.$refs.uploaded.removeUploadedFiles();
             this.fileList = [];
-            this.url = [];
-            // 提交后清空当前上传区的所有信息
-            this.$refs.uploaded.reset();
-            //上传清空图片数据源
             this.imgList = [];
-            this.uploaded = [];
-            // 上传后由于不会跳出当前页，所以需要将所有的备注信息清空
             this.text = {};
-            //上传后清空备注数据
+            this.url = [];
             this.upImgData = "";
             this.getList();
-            // this.getDetail();
-            this.remark = "";
-            this.saveCheck(0);
+            this.getDetail();
           }
         }
       } else {
@@ -596,9 +655,9 @@ export default {
       uploaded: [],
       canUpdate: true,
       ifUploaded: true,
-      //暂存区数据
-      imgList: [],
       //上传附件携带参
+      imgList: [],
+      //暂存区数据
       fileList: [],
       dataObj: [
         {
@@ -618,15 +677,14 @@ export default {
       fileData: [],
       url: [],
       id: "",
-      messageShow: true,
       //图片备注数据
       text: {},
       //照片数据处理
       upImgData: "",
-      // 获取暂存的图片的信息
-      files: [],
-      // 保存已经上传过并保存或提交的图片的备注
-      textOne: {},
+      // 当前页面下载前缀地址
+      downloadUrl: "",
+      //依据不同的的情景改变bool值来进行判断
+      messageShow: true
     };
   }
 };
@@ -743,8 +801,8 @@ export default {
 }
 
 .imgStyle {
-  height: 130px;
-  max-width: 130px;
+  height: 140px;
+  max-width: 160px;
   background-color: #f5f7fa;
   .divStyle {
     text-align: center;

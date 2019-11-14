@@ -309,7 +309,7 @@
                             size="12px"
                             flat
                             dense
-                            @click="deleteImg(file,'presentSituationImageUploaded', 1)"
+                            @click="deleteImg(file,'assessImageUploaded', 1)"
                           >
                             <q-icon name="fas fa-trash" />
                           </q-btn>
@@ -427,7 +427,7 @@
                             size="12px"
                             flat
                             dense
-                            @click="deleteImg(file,'improveImageUploaded', 1)"
+                            @click="deleteImg(file,'assessImageUploaded', 1)"
                           >
                             <q-icon name="fas fa-trash" />
                           </q-btn>
@@ -504,9 +504,11 @@ export default {
     this.StringToImg("presentSituationImage");
     this.StringToImg("improveImage");
     this.getInfo();
-    this.dataObj[1].value = this.allInfo.id;
+    this.dataObj[1].value = this.allInfo.reviewId;
     this.getEnclosure();
     this.remarkOne = "";
+    let rse = window.location;
+    this.downloadUrl = rse.origin;
   },
 
   methods: {
@@ -514,14 +516,16 @@ export default {
     async getEnclosure() {
       let res = await getEnclosureList({
         mouldNo: this.$store.getters.mould_list.mouldNo,
-        classId: this.allInfo.id,
+        classId: this.allInfo.reviewId,
         type: 2
       });
       if (res.status == 1) {
         this.fileData = [];
         res.msg.forEach(item => {
           let download =
-            item.url + `?filename=${item.fileName.replace(/[&,#\\]/g, "")}`;
+            this.downloadUrl +
+            item.url +
+            `?filename=${item.fileName.replace(/[&,#\\]/g, "")}`;
           this.fileData.push({
             url: download,
             filename: item.fileName,
@@ -823,7 +827,9 @@ export default {
         }
       ],
       //下载列表数据源
-      fileData: []
+      fileData: [],
+      // 当前页面下载前缀地址
+      downloadUrl: ""
     };
   }
 };
